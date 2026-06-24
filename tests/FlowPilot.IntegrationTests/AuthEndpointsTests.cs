@@ -163,6 +163,37 @@ public class AuthEndpointsTests : IClassFixture<FlowPilotApiFactory>
         Assert.Equal(HttpStatusCode.Conflict, http.StatusCode);
     }
 
+    [Fact]
+    public async Task Register_InvalidEmail_Returns400()
+    {
+        HttpResponseMessage http = await _client.PostAsJsonAsync(
+            $"{AuthBase}/register",
+            MakeRegisterPayload(email: "not-an-email"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, http.StatusCode);
+    }
+
+    [Fact]
+    public async Task Register_ShortPassword_Returns400()
+    {
+        HttpResponseMessage http = await _client.PostAsJsonAsync(
+            $"{AuthBase}/register",
+            MakeRegisterPayload(email: "weak-pw@test.dev", password: "short"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, http.StatusCode);
+    }
+
+    [Fact]
+    public async Task Register_MissingRequiredFields_Returns400NotServerError()
+    {
+        // Payload omits firstName/lastName/businessName — must be a clean 400, never a 500
+        HttpResponseMessage http = await _client.PostAsJsonAsync(
+            $"{AuthBase}/register",
+            new { email = "partial@test.dev", password = "Test1234!@#" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, http.StatusCode);
+    }
+
     // =====================================================================
     // LOGIN
     // =====================================================================

@@ -602,7 +602,10 @@ RouteGroupBuilder twilioGroup = app.MapGroup("/api/webhooks/twilio")
 
 twilioGroup.MapPost("/sms/inbound", async (HttpRequest request, AppDbContext db, IMessagingService messagingService, CancellationToken ct) =>
 {
-    // Twilio sends application/x-www-form-urlencoded
+    // Twilio sends application/x-www-form-urlencoded — reject anything else with 400 (ReadFormAsync throws otherwise)
+    if (!request.HasFormContentType)
+        return Results.BadRequest(new { error = "Expected application/x-www-form-urlencoded body." });
+
     IFormCollection form = await request.ReadFormAsync(ct);
     string messageSid = form["MessageSid"].ToString();
     string from = form["From"].ToString();
@@ -632,6 +635,10 @@ twilioGroup.MapPost("/sms/inbound", async (HttpRequest request, AppDbContext db,
 
 twilioGroup.MapPost("/sms/status", async (HttpRequest request, AppDbContext db, IMessagingService messagingService, CancellationToken ct) =>
 {
+    // Twilio sends application/x-www-form-urlencoded — reject anything else with 400 (ReadFormAsync throws otherwise)
+    if (!request.HasFormContentType)
+        return Results.BadRequest(new { error = "Expected application/x-www-form-urlencoded body." });
+
     IFormCollection form = await request.ReadFormAsync(ct);
     string messageSid = form["MessageSid"].ToString();
     string status = form["MessageStatus"].ToString();
