@@ -194,6 +194,18 @@ public class AuthEndpointsTests : IClassFixture<FlowPilotApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, http.StatusCode);
     }
 
+    [Fact]
+    public async Task Register_MalformedJsonBody_Returns400NotServerError()
+    {
+        // Broken JSON triggers minimal-API model-binding failure — the global exception
+        // handler must surface a 400 ProblemDetails, never a 500.
+        var content = new StringContent("{bad json,", System.Text.Encoding.UTF8, "application/json");
+        HttpResponseMessage http = await _client.PostAsync($"{AuthBase}/register", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, http.StatusCode);
+        Assert.Equal("application/problem+json", http.Content.Headers.ContentType?.MediaType);
+    }
+
     // =====================================================================
     // LOGIN
     // =====================================================================

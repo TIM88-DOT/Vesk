@@ -65,6 +65,13 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 // ---------------------------------------------------------------------------
+// Problem Details — consistent RFC 7807 error bodies; GlobalExceptionHandler
+// maps malformed-input (BadHttpRequestException) to 400 instead of leaking 500.
+// ---------------------------------------------------------------------------
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
@@ -234,6 +241,8 @@ var app = builder.Build();
 // ---------------------------------------------------------------------------
 // Middleware pipeline
 // ---------------------------------------------------------------------------
+// First in the pipeline so it wraps endpoint execution AND minimal-API model binding.
+app.UseExceptionHandler();
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseAuthentication();
