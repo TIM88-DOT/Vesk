@@ -339,6 +339,12 @@ public sealed class AppointmentService : IAppointmentService
             appointment.Id, appointment.CustomerId, _currentTenant.TenantId, _currentTenant.UserId,
             oldStatus, newStatus), cancellationToken);
 
+        // Off-thread: review-recovery agent (LLM + outbound SMS) runs on a background scope so its
+        // latency/failures never block or fail the complete request.
+        if (newStatus == AppointmentStatus.Completed)
+            _backgroundEvents.Enqueue(new AppointmentCompletedEvent(
+                appointment.Id, appointment.CustomerId, _currentTenant.TenantId));
+
         return Result.Success(ToDto(appointment));
     }
 
