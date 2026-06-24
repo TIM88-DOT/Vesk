@@ -12,6 +12,10 @@ namespace FlowPilot.Api.BackgroundEvents;
 /// </summary>
 public sealed class BackgroundEventProcessor : BackgroundService
 {
+    // A slow handler (an LLM call can take seconds) shouldn't stall unrelated events. A small fixed
+    // pool keeps latency low without letting agent fan-out overwhelm the DB pool or Azure OpenAI quota.
+    private const int ConsumerCount = 4;
+
     private readonly IBackgroundEventQueue _queue;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BackgroundEventProcessor> _logger;
@@ -27,6 +31,15 @@ public sealed class BackgroundEventProcessor : BackgroundService
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        IEnumerable<Task> consumers = Enumerable
+            .Range(0, ConsumerCount)
+            .Select(_ => ConsumeAsync(stoppingToken));
+
+        await Task.WhenAll(consumers);
+    }
+
+    private async Task ConsumeAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {

@@ -33,7 +33,9 @@ public sealed class BackgroundEventQueue : IBackgroundEventQueue
     private readonly Channel<QueuedDomainEvent> _channel =
         Channel.CreateUnbounded<QueuedDomainEvent>(new UnboundedChannelOptions
         {
-            SingleReader = true,
+            // Multiple concurrent readers: BackgroundEventProcessor runs a small pool of consumers
+            // so one slow LLM handler doesn't stall the whole queue.
+            SingleReader = false,
             SingleWriter = false,
         });
 
