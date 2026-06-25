@@ -3,6 +3,7 @@ using FlowPilot.Domain.Enums;
 using FlowPilot.Infrastructure.Persistence;
 using FlowPilot.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace FlowPilot.Infrastructure.Stats;
 
@@ -12,10 +13,19 @@ namespace FlowPilot.Infrastructure.Stats;
 public sealed class DashboardStatsService : IDashboardStatsService
 {
     private readonly AppDbContext _db;
+    private readonly TimeSpan _atRiskWindow;
 
-    public DashboardStatsService(AppDbContext db)
+    public DashboardStatsService(AppDbContext db, IConfiguration configuration)
     {
         _db = db;
+
+        // Mirror AppointmentLifecycleWorker's window resolution so the dashboard KPI and the
+        // worker agree on what "at risk" means. Minutes override wins (local test runs);
+        // otherwise fall back to hours (prod default 3h). Read via the indexer + TryParse to avoid
+        // taking a dependency on the Configuration.Binder extension package in this project.
+        _atRiskWindow = int.TryParse(configuration["Appointments:AtRiskWindowMinutes"], out int atRiskMinutes)
+            ? TimeSpan.FromMinutes(atRiskMinutes)
+            : TimeSpan.FromHours(int.TryParse(configuration["Appointments:AtRiskWindowHours"], out int atRiskHours) ? atRiskHours : 3);
     }
 
     /// <inheritdoc />
@@ -62,14 +72,20 @@ public sealed class DashboardStatsService : IDashboardStatsService
             .Select(u => u.SmsSent)
             .FirstOrDefaultAsync(cancellationToken);
 
-        // At-risk: Scheduled appointments the lifecycle worker flagged as still unconfirmed.
-        // We do NOT filter on StartsAt > now — once the appointment passes its start time it
-        // is still "at risk" until the lifecycle worker transitions it to Missed (after EndsAt + grace).
-        // Filtering on StartsAt would make the KPI briefly drop to 0 between StartsAt and the Missed transition.
+        // At-risk: Scheduled appointments that are either (a) already flagged by the lifecycle worker,
+        // or (b) inside the upcoming at-risk window right now. Counting (b) directly means freshly
+        // created near-term unconfirmed appointments reflect immediately, before the worker's next
+        // scan fires — otherwise the KPI reads 0 until the background scan runs.
+        // We keep (a) so an appointment the worker already flagged stays counted even after its
+        // StartsAt passes (until the lifecycle worker transitions it to Missed); relying on the
+        // window alone would make the KPI drop to 0 in that gap.
+        DateTime atRiskWindowEnd = utcNow + _atRiskWindow;
         int atRiskCount = await _db.Appointments
             .AsNoTracking()
             .CountAsync(a => a.Status == AppointmentStatus.Scheduled
-                             && a.AtRiskAlertedAt != null, cancellationToken);
+                             && (a.AtRiskAlertedAt != null
+                                 || (a.StartsAt > utcNow && a.StartsAt <= atRiskWindowEnd)),
+                        cancellationToken);
 
         return Result.Success(new DashboardStatsDto(
             NoShowRatePercent: noShowRate,
