@@ -21,7 +21,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { classify } from "./classifier.mjs";
+import { classify, resolveProvider } from "./classifier.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -98,31 +98,28 @@ function pad(s, n) {
 
 async function main() {
   loadEnv();
-  const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const provider = resolveProvider(process.env);
 
-  if (!apiKey) {
+  if (!provider) {
     console.log(`
-No OPENAI_API_KEY found.
+No LLM provider configured. Set ONE of these in .env (cp .env.example .env):
 
-  1. cp .env.example .env
-  2. put your key in .env  (OPENAI_API_KEY=sk-...)
-  3. node run-evals.mjs
+  OpenAI:            OPENAI_API_KEY=sk-...
+  Azure AI Foundry:  AZURE_OPENAI_ENDPOINT=https://<resource>.openai.azure.com
+                     AZURE_OPENAI_API_KEY=<key>
+                     AZURE_OPENAI_DEPLOYMENT=<your-deployment-name>
 
-See results.md for a committed sample run.
+Then: node run-evals.mjs   (See results.md for a committed sample run.)
 `);
     process.exit(0);
   }
 
   const cases = loadCases();
-  console.log(`Running ${cases.length} cases against ${model}...\n`);
+  console.log(`Running ${cases.length} cases against ${provider.label}...\n`);
 
   const rows = await mapPool(cases, CONCURRENCY, async (c) => {
     try {
-      const { intent, confidence, reasoning } = await classify(c.message, {
-        apiKey,
-        model,
-      });
+      const { intent, confidence, reasoning } = await classify(c.message, provider);
       const action = simulateAction(intent, confidence);
       const verdict = verdictFor(c, intent, confidence);
       return { c, intent, confidence, reasoning, action, verdict };
@@ -168,7 +165,7 @@ See results.md for a committed sample run.
   if (errors) console.log(`Errors:          ${errors}`);
   console.log("=".repeat(50));
 
-  writeResults(rows, { total, passes, dangerous, safeFails, loggedFails, errors, acc, model });
+  writeResults(rows, { total, passes, dangerous, safeFails, loggedFails, errors, acc, model: provider.label });
   console.log("\nWrote results.md");
 }
 

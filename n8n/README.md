@@ -95,6 +95,19 @@ The classifier prompt and the `classify_intent` schema are the **same ones** use
 Targets n8n 1.x. If a node shows a version warning on import, open it and re-select the operation —
 the logic is in the Code nodes, which are version-stable.
 
+### Using Azure AI Foundry instead of OpenAI
+
+The flow ships pointed at OpenAI, but Vesk runs on Azure OpenAI in production — to match it, change
+only the **OpenAI Classify** node (no workflow-structure changes):
+
+1. **URL** → your deployment's chat-completions endpoint:
+   `https://<resource>.openai.azure.com/openai/deployments/<deployment>/chat/completions?api-version=2024-10-21`
+2. **Credential** → a *Header Auth* credential with `Name = api-key` and `Value = <your-azure-key>`
+   (Azure uses `api-key`, not `Authorization: Bearer`).
+
+That's it — the request body is identical (Azure ignores the body `model`; the deployment is in the
+URL), and the response shape is the same, so **Apply Threshold Policy** downstream needs no changes.
+
 ---
 
 ## C# production vs n8n replica — the honest comparison

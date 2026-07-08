@@ -68,17 +68,50 @@ export const CLASSIFY_INTENT_SCHEMA = {
   required: ["intent", "confidence", "reasoning"],
 };
 
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+/**
+ * Resolve which LLM provider to call from env vars. Azure takes precedence if
+ * configured (matches Vesk's production AzureOpenAIClient); otherwise plain OpenAI.
+ * Returns null if neither is configured.
+ * @param {Record<string,string|undefined>} env
+ */
+export function resolveProvider(env = process.env) {
+  // --- Azure OpenAI / Azure AI Foundry ---
+  if (env.AZURE_OPENAI_ENDPOINT && env.AZURE_OPENAI_API_KEY) {
+    const endpoint = env.AZURE_OPENAI_ENDPOINT.replace(/\/+$/, "");
+    const deployment = env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini";
+    const apiVersion = env.AZURE_OPENAI_API_VERSION || "2024-10-21";
+    return {
+      provider: "azure",
+      url: `${endpoint}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`,
+      headers: { "Content-Type": "application/json", "api-key": env.AZURE_OPENAI_API_KEY },
+      model: deployment,     // Azure ignores the body `model`; deployment is in the URL
+      sendModel: false,
+      label: `azure:${deployment}`,
+    };
+  }
+  // --- OpenAI ---
+  if (env.OPENAI_API_KEY) {
+    const model = env.OPENAI_MODEL || "gpt-4o-mini";
+    return {
+      provider: "openai",
+      url: "https://api.openai.com/v1/chat/completions",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.OPENAI_API_KEY}` },
+      model,
+      sendModel: true,
+      label: model,
+    };
+  }
+  return null;
+}
 
 /**
  * Classify a single inbound SMS body.
  * @param {string} message raw SMS text
- * @param {{ apiKey: string, model: string }} opts
+ * @param {ReturnType<typeof resolveProvider>} cfg provider config from resolveProvider()
  * @returns {Promise<{intent: string, confidence: number, reasoning: string}>}
  */
-export async function classify(message, { apiKey, model }) {
+export async function classify(message, cfg) {
   const body = {
-    model,
     temperature: 0,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
@@ -100,19 +133,17 @@ export async function classify(message, { apiKey, model }) {
       function: { name: "classify_intent" },
     },
   };
+  if (cfg.sendModel) body.model = cfg.model;
 
-  const res = await fetch(OPENAI_URL, {
+  const res = await fetch(cfg.url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
+    headers: cfg.headers,
     body: JSON.stringify(body),
   });
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`OpenAI ${res.status}: ${text}`);
+    throw new Error(`${cfg.provider} ${res.status}: ${text}`);
   }
 
   const data = await res.json();

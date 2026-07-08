@@ -98,16 +98,23 @@ deliberate design choice, and the eval respects that boundary.
 
 ```bash
 cd evals
-cp .env.example .env        # then put your OPENAI_API_KEY in .env
+cp .env.example .env        # then add your key(s) in .env
 npm run eval                # or: node run-evals.mjs
 ```
+
+Works with **either provider** — set one in `.env`:
+
+- **OpenAI:** `OPENAI_API_KEY` (+ optional `OPENAI_MODEL`, default `gpt-4o-mini`).
+- **Azure AI Foundry / Azure OpenAI:** `AZURE_OPENAI_ENDPOINT` + `AZURE_OPENAI_API_KEY` +
+  `AZURE_OPENAI_DEPLOYMENT` (+ optional `AZURE_OPENAI_API_VERSION`). This is the same provider Vesk
+  uses in production (`AzureOpenAIClient`); if both are set, Azure wins.
 
 Node 18+ (uses built-in `fetch`, no dependencies to install). Output goes to the console and is
 written to [`results.md`](./results.md).
 
-Without a key, the script prints setup instructions and exits cleanly — the committed `results.md`
-is an **illustrative sample** so you can read the format without running anything. Live numbers vary
-by model and run; set `OPENAI_MODEL` in `.env` to try a different model.
+Without a provider configured, the script prints setup instructions and exits cleanly — the committed
+`results.md` is an **illustrative sample** so you can read the format without running anything. Live
+numbers vary by model and run.
 
 ## Files
 
