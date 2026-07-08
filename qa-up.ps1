@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# FlowPilot AI - detached dev boot for autonomous QA.
+# Vesk AI - detached dev boot for autonomous QA.
 # Unlike start.ps1 (which blocks tailing logs), this starts docker + API + Workers + Web
 # in the background, waits until they're reachable, writes PIDs to .dev-logs\pids.txt
 # (so stop.ps1 can clean up), then RETURNS so an agent can run tests.
@@ -69,7 +69,7 @@ docker compose up -d | Out-Null
 Write-Host "[qa-up] waiting for postgres to be healthy..."
 $status = ''
 for ($i = 0; $i -lt 30; $i++) {
-    $status = (docker inspect -f '{{.State.Health.Status}}' flowpilot_db 2>$null)
+    $status = (docker inspect -f '{{.State.Health.Status}}' vesk_db 2>$null)
     if ($status -eq 'healthy') { Write-Host "[qa-up] postgres ready."; break }
     Start-Sleep -Seconds 1
 }
@@ -77,7 +77,7 @@ if ($status -ne 'healthy') { throw "Postgres did not become healthy in time." }
 
 Write-Host "[qa-up] building solution..."
 $buildLog = Join-Path $LogDir 'build.log'
-& dotnet build FlowPilot.sln --nologo -v minimal *> $buildLog
+& dotnet build Vesk.sln --nologo -v minimal *> $buildLog
 if ($LASTEXITCODE -ne 0) {
     Get-Content $buildLog -Tail 40
     throw "dotnet build failed"
@@ -85,7 +85,7 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host "[qa-up] applying database migrations..."
 $migrationLog = Join-Path $LogDir 'migrate.log'
-& dotnet ef database update --project src/FlowPilot.Infrastructure --startup-project src/FlowPilot.Api --no-build *> $migrationLog
+& dotnet ef database update --project src/Vesk.Infrastructure --startup-project src/Vesk.Api --no-build *> $migrationLog
 if ($LASTEXITCODE -ne 0) {
     Get-Content $migrationLog -Tail 40
     throw "dotnet ef database update failed"
@@ -93,11 +93,11 @@ if ($LASTEXITCODE -ne 0) {
 
 if (-not $apiAlready) {
     Start-Detached -Name 'api' -FilePath 'dotnet' `
-        -ArgumentList @('run','--project','src/FlowPilot.Api','--no-launch-profile','--no-build') `
+        -ArgumentList @('run','--project','src/Vesk.Api','--no-launch-profile','--no-build') `
         -EnvVars @{ ASPNETCORE_ENVIRONMENT = 'Development'; ASPNETCORE_URLS = "http://localhost:$ApiPort" }
 
     Start-Detached -Name 'workers' -FilePath 'dotnet' `
-        -ArgumentList @('run','--project','src/FlowPilot.Workers','--no-build') `
+        -ArgumentList @('run','--project','src/Vesk.Workers','--no-build') `
         -EnvVars @{ DOTNET_ENVIRONMENT = 'Development'; ASPNETCORE_ENVIRONMENT = 'Development' }
 } else {
     Write-Host "[qa-up] API already listening on :$ApiPort — not re-starting API/Workers."
@@ -106,7 +106,7 @@ if (-not $apiAlready) {
 if (-not $webAlready) {
     Start-Detached -Name 'web' -FilePath 'npm.cmd' `
         -ArgumentList @('run','dev','--','--port',"$WebPort") `
-        -WorkingDirectory (Join-Path $Root 'src/FlowPilot.Web')
+        -WorkingDirectory (Join-Path $Root 'src/Vesk.Web')
 } else {
     Write-Host "[qa-up] Web already listening on :$WebPort — not re-starting Web."
 }

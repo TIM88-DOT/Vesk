@@ -1,4 +1,4 @@
-# FlowPilot QA Harness
+# Vesk QA Harness
 
 Autonomous QA for the running app: **Playwright** UI journeys at `:5173` + direct **API**
 probes at `:5216`. Driven by the [`qa-tester`](../.claude/agents/qa-tester.md) agent
@@ -17,9 +17,9 @@ denies PowerShell). To do it by hand:
 ```bash
 # from repo root
 docker compose up -d
-dotnet ef database update --project src/FlowPilot.Infrastructure --startup-project src/FlowPilot.Api
-dotnet run --project src/FlowPilot.Api --launch-profile http      # API :5216  (leave running)
-npm run dev --prefix src/FlowPilot.Web                            # Web :5173  (leave running)
+dotnet ef database update --project src/Vesk.Infrastructure --startup-project src/Vesk.Api
+dotnet run --project src/Vesk.Api --launch-profile http      # API :5216  (leave running)
+npm run dev --prefix src/Vesk.Web                            # Web :5173  (leave running)
 
 npm run smoke --prefix qa    # seed journey → qa/reports/qa-report-<timestamp>.md
 

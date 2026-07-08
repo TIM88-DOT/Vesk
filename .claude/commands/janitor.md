@@ -1,6 +1,6 @@
 # /janitor
 
-FlowPilot code janitor — finds dead code, unused tools, and cruft. **Flag-only: makes no changes.**
+Vesk code janitor — finds dead code, unused tools, and cruft. **Flag-only: makes no changes.**
 
 Scope defaults to the **whole codebase**. If the caller names a scope (e.g. "just the agent tools",
 "the web app", "the diff"), honor it. For a diff-only pass, run `git diff main...HEAD` first.
@@ -14,9 +14,9 @@ public API, dynamic dispatch), say so and lower its confidence.
 
 ### 🔴 DEAD / UNUSED — safe-ish to remove after a human glance
 
-**Agent tools (FlowPilot-specific — check this first)**
+**Agent tools (Vesk-specific — check this first)**
 - [ ] Every `IAgentTool` implementation under `Agents/Tools/` is registered via `registry.Register(...)`
-      in `src/FlowPilot.Api/Program.cs`. List any impl that is **not** registered (dead tool).
+      in `src/Vesk.Api/Program.cs`. List any impl that is **not** registered (dead tool).
 - [ ] Every registered tool is actually reachable (referenced by an agent/orchestrator). Flag
       registered-but-never-invoked tools.
 
@@ -29,7 +29,7 @@ public API, dynamic dispatch), say so and lower its confidence.
 
 **Frontend dead code**
 - [ ] Exported components/hooks/utils with no importer (`npx ts-prune` if available, else grep)
-- [ ] Unreferenced files under `src/FlowPilot.Web/src/` (not in any route or import graph)
+- [ ] Unreferenced files under `src/Vesk.Web/src/` (not in any route or import graph)
 - [ ] npm dependencies in `package.json` never imported (`npx depcheck` if available)
 
 ---
@@ -56,9 +56,9 @@ public API, dynamic dispatch), say so and lower its confidence.
 
 ### Detection commands (read-only)
 ```bash
-dotnet build FlowPilot.sln                       # warnings surface unused usings/vars
+dotnet build Vesk.sln                       # warnings surface unused usings/vars
 npx ts-prune --error 2>/dev/null || true         # unused TS exports (one-off, no install)
-npx depcheck src/FlowPilot.Web 2>/dev/null || true  # unused npm deps
+npx depcheck src/Vesk.Web 2>/dev/null || true  # unused npm deps
 ```
 Cross-check tool output against grep before trusting it — analyzers miss DI/reflection wiring.
 

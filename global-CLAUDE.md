@@ -1,13 +1,13 @@
-# Global Claude Preferences — FlowPilot Dev
+# Global Claude Preferences — Vesk Dev
 
 ## My Style
-- Solo developer building FlowPilot AI — be direct, skip hand-holding
+- Solo developer building Vesk AI — be direct, skip hand-holding
 - Show code first, explain only if the pattern is non-obvious
 - When I say "fix" or "implement", do it — don't ask 5 questions unless ambiguity would break something critical
 - Always generate complete methods/functions — never truncate with "// rest of implementation"
 
 ## Output Format
-- First line of every code block: filename comment (e.g. `// src/FlowPilot.Application/Messaging/Commands/SendSmsCommand.cs`)
+- First line of every code block: filename comment (e.g. `// src/Vesk.Application/Messaging/Commands/SendSmsCommand.cs`)
 - Multi-file changes: list ALL changed files upfront before any code
 - Use `// TODO:` comments for secrets, env-specific values, and things I must fill in
 - For small changes (< 5 lines), show a diff, not the full file

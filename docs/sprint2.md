@@ -1,5 +1,5 @@
 # Sprint 2 — Path to Production
-**Goal:** Ship FlowPilot / Relora AI to a real Azure environment with real Twilio senders, real money, and enough observability to run it safely with a small pilot.
+**Goal:** Ship Vesk / Relora AI to a real Azure environment with real Twilio senders, real money, and enough observability to run it safely with a small pilot.
 **Duration:** 2 weeks
 **Prereq:** Sprint 1 shipped. MVP demo journey works locally end-to-end.
 
@@ -69,7 +69,7 @@ Industry-standard two-touch reminder flow + staff-facing at-risk alert. Closes t
 - [x] `AppointmentRealtimeBridge` fans `AppointmentAtRiskEvent` out to the `appointments` SignalR hub as `"AppointmentAtRisk"`.
 - [x] `DashboardStatsService` returns an `AtRiskCount` KPI (upcoming Scheduled with `AtRiskAlertedAt != null`).
 - [x] Web dashboard: red "At-risk" KPI card + red-dot badge on each at-risk appointment row. `useAppointmentEvents` invalidates queries on `AppointmentAtRisk` push.
-- [ ] EF migration `AddAppointmentAtRiskAlert` — add nullable `at_risk_alerted_at` column to `appointments`. **Action required:** stop services, then `dotnet ef migrations add AddAppointmentAtRiskAlert --project src/FlowPilot.Infrastructure --startup-project src/FlowPilot.Api && dotnet ef database update`.
+- [ ] EF migration `AddAppointmentAtRiskAlert` — add nullable `at_risk_alerted_at` column to `appointments`. **Action required:** stop services, then `dotnet ef migrations add AddAppointmentAtRiskAlert --project src/Vesk.Infrastructure --startup-project src/Vesk.Api && dotnet ef database update`.
 - [x] Integration test: create same-day appointment → time-skip inside window → assert `AtRiskAlertedAt` set exactly once, event published exactly once. (`AppointmentLifecycleTests.ScanAtRisk_RunTwice_FlagsOnceAndPublishesEventOnce`)
 - [x] Integration test: first reminder fires → customer confirms → second reminder dispatcher run marks the T−3h message as `Cancelled` instead of sending. (`AppointmentLifecycleTests.DispatchDue_AfterConfirm_CancelsReminderInsteadOfSending`)
 

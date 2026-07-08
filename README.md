@@ -1,12 +1,25 @@
 # Vesk ✨
 
-*(formerly FlowPilot AI, briefly Relora AI)*
+**Vesk sends the reminder, reads the reply, and asks for the review — so a 3-chair salon doesn't have to.**
 
-**Appointments that manage themselves.**
+<table>
+<tr>
+<td width="65%" valign="top">
+<img src="docs/screenshots/dashboard-hero.png" alt="Vesk owner dashboard — today's appointments, at-risk score, no-show rate, reviews sent" width="100%" />
+<sub>Owner dashboard — live status per appointment, no-show rate, at-risk flags.</sub>
+</td>
+<td width="35%" valign="top">
+<img src="docs/screenshots/booking-mobile.png" alt="Vesk public booking flow on mobile — picking a time slot" width="100%" />
+<sub>Public booking, no account needed — <code>/book/{slug}</code>.</sub>
+</td>
+</tr>
+</table>
 
-An AI-native communication OS for appointment-based small businesses — salons, clinics, barbers, studios, dentists. Bilingual (FR + EN), built for the Canadian market.
+## How it's built
 
-> **Heads up — the product has been renamed twice.** The repo, .NET solution, projects, and namespaces are all still `FlowPilot.*` (the original working name; briefly rebranded **Relora AI** along the way). Everything the user sees now is **Vesk**. The source-tree rename is planned but not yet done, so expect `FlowPilot` in paths and `dotnet` commands.
+<img src="docs/architecture-layers.svg" alt="Vesk layered architecture: Api, Application, Infrastructure, Domain, Shared, Workers, Web" width="100%" />
+
+*(More diagrams — event flow, SMS sequence, appointment state machine — in [`docs/architecture-all.md`](docs/architecture-all.md).)*
 
 ---
 
@@ -45,6 +58,32 @@ Vesk flips this. The AI *is* the workflow, not a chatbot bolted onto one. It pic
 
 ---
 
+## 🩹 Failure modes and lessons
+
+Real incidents from building this, not hypotheticals — the failure, the root cause, and the fix.
+
+**1. The AI agent scheduled a reminder in the past — and lied about the time in it.**
+Early on, the reminder-optimization LLM agent picked its own send time *and* wrote the "time remaining" text itself. Live testing on a 2-hour-out appointment showed it scheduling the urgent reminder in the past, with body text saying "in 3h" when the real gap was 1 hour — a message that would dispatch immediately with wrong information.
+*Root cause:* a business rule (accurate time math) was delegated to the LLM instead of enforced in code — a direct violation of the project's own "AI never owns hard gates" rule.
+*Fix:* moved time-phrase formatting into deterministic C# (`ReminderTimePhrase`), added a `{time_until}` token the agent must use instead of writing a number, and made the scheduling tool reject any `sendAt` in the past or at/after the appointment start. The agent proposes; the tool call is the actual gate.
+
+**2. Three things sending SMS at once corrupted the monthly usage counter.**
+Concurrent SMS sends for the same tenant — an inbound reply, the reminder dispatcher, and the no-show worker — all hit the same `(plan, year, month)` usage row with a read-then-insert find-or-create. Under concurrency this raced the unique constraint and threw a Postgres `23505`, surfacing as flaky test failures and a live 500 risk.
+*Root cause:* "check then write" isn't atomic, and three independent code paths had each grown their own copy of the same find-or-create logic.
+*Fix:* replaced all three call sites with one shared `UsageTracker.IncrementSmsSentAsync` doing `INSERT … ON CONFLICT DO UPDATE`, so concurrent sends serialize in the database instead of racing in application code.
+
+**3. A dev-only JWT secret sat in the public repo's history.**
+`appsettings.Development.json` — carrying a JWT signing key and a local DB password — was tracked in git from an early commit onward. It's a demo project, not a production one, but "public repo with a committed secret" is exactly the kind of thing that gets flagged, and rotating it after the fact doesn't remove it from history.
+*Root cause:* the default `dotnet new` template tracks `appsettings.*.json` by default, and nothing in the early setup opted the Development file out.
+*Fix:* untracked both API and Workers dev config, added `.example` templates for onboarding, pinned every CI Action to a commit SHA, and added job timeouts + broader secret-scanning triggers so the gap (and the class of gap) doesn't recur. Removing a secret rewrites nothing in history — it stayed rotated instead.
+
+**4. The frontend was hammering `/auth/refresh` on every page load.**
+QA noticed a burst of ~12 aborted `/auth/refresh` calls per user journey. The `AuthProvider` bootstrap and the axios 401 interceptor each independently fired their own refresh call, and optimistic rendering kicked off page queries before the token was even set — so multiple 401s could each trigger their own refresh in parallel.
+*Root cause:* two independent code paths assumed they were the only thing that could trigger a refresh; neither knew about the other.
+*Fix:* one shared single-flight `refreshSession()` in `lib/api.ts` that both paths call into, replacing the interceptor's ad-hoc queuing. Aborted calls per journey dropped from ~12 to ~4 (the remainder are unrelated navigation-cancel aborts).
+
+---
+
 ## 🛠️ Tech
 
 **Backend**
@@ -69,24 +108,22 @@ Vesk flips this. The AI *is* the workflow, not a chatbot bolted onto one. It pic
 ## 📁 Repository layout
 
 ```
-FlowPilot.sln
+Vesk.sln
 ├── src/
-│   ├── FlowPilot.Api/            Controllers, middleware, DI root
-│   ├── FlowPilot.Application/    MediatR handlers, DTOs, agent orchestration
-│   ├── FlowPilot.Domain/         Entities, enums, domain events
-│   ├── FlowPilot.Infrastructure/ EF Core, Twilio, Service Bus, Azure OpenAI
-│   ├── FlowPilot.Workers/        IHostedService workers, Service Bus consumers
-│   ├── FlowPilot.Shared/         Result<T>, Error types, guards, interfaces
-│   └── FlowPilot.Web/            React + Vite frontend
+│   ├── Vesk.Api/            Controllers, middleware, DI root
+│   ├── Vesk.Application/    MediatR handlers, DTOs, agent orchestration
+│   ├── Vesk.Domain/         Entities, enums, domain events
+│   ├── Vesk.Infrastructure/ EF Core, Twilio, Service Bus, Azure OpenAI
+│   ├── Vesk.Workers/        IHostedService workers, Service Bus consumers
+│   ├── Vesk.Shared/         Result<T>, Error types, guards, interfaces
+│   └── Vesk.Web/            React + Vite frontend
 ├── tests/
-│   ├── FlowPilot.UnitTests/
-│   ├── FlowPilot.IntegrationTests/     Tenant isolation, idempotency, consent gate
-│   └── FlowPilot.Architecture.Tests/   ArchUnitNET: no cross-module leaks
+│   ├── Vesk.UnitTests/
+│   ├── Vesk.IntegrationTests/     Tenant isolation, idempotency, consent gate
+│   └── Vesk.Architecture.Tests/   ArchUnitNET: no cross-module leaks
 ├── infra/                        Azure Bicep
 └── docs/                         Architecture diagrams, sprint plans
 ```
-
-> Reminder: every `FlowPilot.*` name above is the original working name (briefly rebranded **Relora AI**). Product = **Vesk**, source tree = **FlowPilot** until the rename lands.
 
 ---
 
@@ -97,17 +134,17 @@ FlowPilot.sln
 docker compose up -d                 # PostgreSQL + Seq
 
 # Backend
-dotnet build FlowPilot.sln
-dotnet ef database update --project src/FlowPilot.Infrastructure --startup-project src/FlowPilot.Api
-dotnet run --project src/FlowPilot.Api
+dotnet build Vesk.sln
+dotnet ef database update --project src/Vesk.Infrastructure --startup-project src/Vesk.Api
+dotnet run --project src/Vesk.Api
 
 # Frontend (separate terminal)
-cd src/FlowPilot.Web
+cd src/Vesk.Web
 npm install
 npm run dev
 
 # Tests
-dotnet test FlowPilot.sln
+dotnet test Vesk.sln
 ```
 
 API on `https://localhost:7xxx`, web on `http://localhost:5173`. Register a tenant from the UI — the account is seeded with FR + EN templates and a default plan. `start.ps1` / `stop.ps1` at the repo root bring the full stack up and down on Windows.
@@ -117,3 +154,7 @@ API on `https://localhost:7xxx`, web on `http://localhost:5173`. Register a tena
 ## 📍 Status
 
 Sprint 1 shipped the full MVP demo loop: auth, tenants, customers with consent, appointments, bilingual reminder workflow, public booking, review request flow, real-time dashboard. Sprint 2 is the path to Azure production — column encryption, per-tenant Twilio provisioning, at-risk polish, auto-completion worker. See [`docs/sprint1.md`](docs/sprint1.md) and [`docs/sprint2.md`](docs/sprint2.md).
+
+---
+
+<sub>Vesk was built as FlowPilot AI, briefly rebranded Relora AI, and now ships as Vesk — the source tree, namespaces, and repo have all been renamed to match.</sub>

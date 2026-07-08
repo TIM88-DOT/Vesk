@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# FlowPilot AI - dev teardown
+# Vesk AI - dev teardown
 # Kills API (:5216), Web (:5173), ngrok, and stops docker containers.
 
 $ErrorActionPreference = 'Continue'
@@ -26,10 +26,10 @@ function Stop-ByPid {
     param([int]$TargetPid, [string]$Label)
     $proc = Get-Process -Id $TargetPid -ErrorAction SilentlyContinue
     if ($null -eq $proc) {
-        Write-Host "[flowpilot] $Label (PID $TargetPid) - already gone."
+        Write-Host "[vesk] $Label (PID $TargetPid) - already gone."
         return
     }
-    Write-Host "[flowpilot] $Label - killing PID $TargetPid ($($proc.ProcessName))"
+    Write-Host "[vesk] $Label - killing PID $TargetPid ($($proc.ProcessName))"
     Stop-Tree -ParentId $TargetPid
     Stop-Process -Id $TargetPid -Force -ErrorAction SilentlyContinue
 }
@@ -38,7 +38,7 @@ function Stop-ByPort {
     param([int]$Port, [string]$Label)
     $conns = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
     if (-not $conns) {
-        Write-Host "[flowpilot] $Label (:$Port) - nothing listening."
+        Write-Host "[vesk] $Label (:$Port) - nothing listening."
         return
     }
     foreach ($c in $conns) {
@@ -50,17 +50,17 @@ function Stop-ByName {
     param([string]$Name, [string]$Label)
     $procs = Get-Process -Name $Name -ErrorAction SilentlyContinue
     if (-not $procs) {
-        Write-Host "[flowpilot] $Label - not running."
+        Write-Host "[vesk] $Label - not running."
         return
     }
     foreach ($p in $procs) {
-        Write-Host "[flowpilot] $Label - killing PID $($p.Id)"
+        Write-Host "[vesk] $Label - killing PID $($p.Id)"
         Stop-Tree -ParentId $p.Id
         Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
     }
 }
 
-Write-Host "[flowpilot] stopping dev services..."
+Write-Host "[vesk] stopping dev services..."
 
 if (Test-Path $PidFile) {
     Get-Content $PidFile | ForEach-Object {
@@ -73,7 +73,7 @@ Stop-ByPort -Port $ApiPort -Label 'API'
 Stop-ByPort -Port $WebPort -Label 'Web'
 Stop-ByName -Name 'ngrok'  -Label 'Ngrok'
 
-Write-Host "[flowpilot] stopping docker containers..."
+Write-Host "[vesk] stopping docker containers..."
 Push-Location $Root
 try {
     docker compose down | Out-Null
@@ -81,4 +81,4 @@ try {
     Pop-Location
 }
 
-Write-Host "[flowpilot] done."
+Write-Host "[vesk] done."

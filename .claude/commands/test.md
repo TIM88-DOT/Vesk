@@ -3,8 +3,8 @@
 Run tests for the current area and fix failures.
 
 1. Detect what's in scope (recent edited files):
-   - `.cs` files in `src/` → `dotnet test FlowPilot.sln --filter 'Category!=Integration'`
-   - `.tsx`/`.ts` files → `cd src/FlowPilot.Web && npm test`
+   - `.cs` files in `src/` → `dotnet test Vesk.sln --filter 'Category!=Integration'`
+   - `.tsx`/`.ts` files → `cd src/Vesk.Web && npm test`
    - Integration tests explicitly → `dotnet test --filter 'Category=Integration'`
 
 2. Show output, highlighting failures only (skip passing test names)
@@ -18,7 +18,7 @@ Run tests for the current area and fix failures.
 
 ---
 
-FlowPilot integration test categories to know:
+Vesk integration test categories to know:
 - `TenantIsolation` — cross-tenant query leaks
 - `Idempotency` — SmsSid, ExternalId, EventId
 - `SoftDelete` — IsDeleted filter

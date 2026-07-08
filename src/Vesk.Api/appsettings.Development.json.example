@@ -1,0 +1,8 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=vesk_dev;Username=vesk;Password=vesk_dev_pass"
+  },
+  "Jwt": {
+    "Secret": "REPLACE_WITH_A_LOCAL_DEV_SECRET_AT_LEAST_32_CHARS"
+  }
+}

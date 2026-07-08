@@ -1,5 +1,5 @@
 /**
- * FlowPilot Full-Sweep QA — covers all 11 scenario areas:
+ * Vesk Full-Sweep QA — covers all 11 scenario areas:
  * Landing, Auth, Public Booking, Customers, Appointments lifecycle,
  * SMS Inbox/webhooks, Templates, Settings, Dashboard, API-direct probes,
  * Cross-cutting (console errors, tenant isolation, idempotency, mobile viewport).
@@ -144,7 +144,7 @@ try {
           ? `select slug from tenants where id='${tenantIdA}' limit 1;`
           : `select slug from tenants order by created_at desc limit 1;`;
         const out = execSync(
-          `docker exec flowpilot_db psql -U flowpilot -d flowpilot_dev -t -c "${query}"`,
+          `docker exec vesk_db psql -U vesk -d vesk_dev -t -c "${query}"`,
           { encoding: "utf8" }
         );
         resolve(out.trim());

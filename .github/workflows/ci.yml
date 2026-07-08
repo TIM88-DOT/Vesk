@@ -29,13 +29,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: flowpilot_test
-          POSTGRES_USER: flowpilot
-          POSTGRES_PASSWORD: flowpilot_dev_pass
+          POSTGRES_DB: vesk_test
+          POSTGRES_USER: vesk
+          POSTGRES_PASSWORD: vesk_dev_pass
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U flowpilot"
+          --health-cmd "pg_isready -U vesk"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -56,15 +56,15 @@ jobs:
           restore-keys: ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore FlowPilot.sln
+        run: dotnet restore Vesk.sln
 
       - name: Build
-        run: dotnet build FlowPilot.sln --no-restore --configuration Release
+        run: dotnet build Vesk.sln --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test FlowPilot.sln --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test Vesk.sln --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
         env:
-          ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=flowpilot_test;Username=flowpilot;Password=flowpilot_dev_pass"
+          ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=vesk_test;Username=vesk;Password=vesk_dev_pass"
 
       - name: Upload test results
         if: always()
@@ -86,16 +86,16 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
-          cache-dependency-path: src/FlowPilot.Web/package-lock.json
+          cache-dependency-path: src/Vesk.Web/package-lock.json
 
       - name: Install dependencies
-        working-directory: src/FlowPilot.Web
+        working-directory: src/Vesk.Web
         run: npm ci
 
       - name: Lint
-        working-directory: src/FlowPilot.Web
+        working-directory: src/Vesk.Web
         run: npm run lint
 
       - name: Build (includes TypeScript check)
-        working-directory: src/FlowPilot.Web
+        working-directory: src/Vesk.Web
         run: npm run build

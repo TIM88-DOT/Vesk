@@ -1,10 +1,10 @@
-# FlowPilot AI — Architecture Documentation
+# Vesk AI — Architecture Documentation
 
 ## 1. System Architecture — Layers & Components
 
 ```mermaid
 graph TB
-    subgraph API["FlowPilot.Api — Entry Point"]
+    subgraph API["Vesk.Api — Entry Point"]
         direction TB
         MW["Middleware<br/>PublicTenantMiddleware"]
         ENDPOINTS["Minimal API Endpoints<br/>Appointments | Customers | Services<br/>Templates | Settings | Stats<br/>Auth | Messaging | Public Booking<br/>Twilio Webhooks"]
@@ -13,7 +13,7 @@ graph TB
         HTTP_TENANT["HttpCurrentTenant<br/>JWT claims + PublicTenantId fallback"]
     end
 
-    subgraph APP["FlowPilot.Application — Contracts & Events"]
+    subgraph APP["Vesk.Application — Contracts & Events"]
         direction TB
         IFACES["Service Interfaces<br/>IAppointmentService | ICustomerService<br/>IMessagingService | ITemplateService<br/>IAuthService | IServiceService<br/>ITenantSettingsService | IDashboardStatsService<br/>IPublicBookingService"]
         EVENTS["MediatR Events<br/>AppointmentCreatedEvent<br/>AppointmentStatusChangedEvent<br/>CustomerOptedOutEvent<br/>InboundSmsReceivedEvent"]
@@ -21,7 +21,7 @@ graph TB
         AGENT_IFACES["Agent Interfaces<br/>IAgentOrchestrator | IAgentTool<br/>IToolRegistry"]
     end
 
-    subgraph INFRA["FlowPilot.Infrastructure — Implementations"]
+    subgraph INFRA["Vesk.Infrastructure — Implementations"]
         direction TB
         subgraph MODULES["Bounded Context Modules"]
             direction LR
@@ -61,28 +61,28 @@ graph TB
         end
     end
 
-    subgraph DOMAIN["FlowPilot.Domain — Entities & Rules"]
+    subgraph DOMAIN["Vesk.Domain — Entities & Rules"]
         direction TB
         ENTITIES["17 Entities (all inherit BaseEntity)<br/>Tenant | User | Customer | ConsentRecord<br/>Appointment | Service | AuditLog<br/>Message | ScheduledMessage<br/>Template | TemplateLocaleVariant<br/>Plan | UsageRecord | TenantSettings<br/>AgentRun | ToolCallLog | ProcessedEvent"]
         ENUMS["7 Enums<br/>AppointmentStatus | ConsentStatus | ConsentSource<br/>MessageDirection | MessageStatus<br/>ScheduledMessageStatus | UserRole"]
         BASE["BaseEntity<br/>Id | TenantId | CreatedAt | UpdatedAt<br/>IsDeleted | DeletedAt"]
     end
 
-    subgraph SHARED["FlowPilot.Shared — Cross-Cutting"]
+    subgraph SHARED["Vesk.Shared — Cross-Cutting"]
         direction LR
         RESULT["Result&lt;T&gt; Pattern"]
         ITENANT["ICurrentTenant"]
         IGATE["IFeatureGate"]
     end
 
-    subgraph WORKERS["FlowPilot.Workers — Background Services"]
+    subgraph WORKERS["Vesk.Workers — Background Services"]
         direction LR
         W1["ScheduledMessage<br/>Dispatcher<br/>polls 30s"]
         W2["Appointment<br/>AutoCompletion<br/>Confirmed->Completed"]
         W3["Appointment<br/>AutoConfirm<br/>Scheduled->Confirmed<br/>3h before"]
     end
 
-    subgraph WEB["FlowPilot.Web — React Frontend"]
+    subgraph WEB["Vesk.Web — React Frontend"]
         direction LR
         PAGES["Pages: Dashboard | Customers<br/>Appointments | SMS Inbox<br/>Templates | Settings | Booking"]
         TECH["TanStack Query | React Hook Form<br/>Zod | Tailwind | SignalR hooks"]
@@ -192,7 +192,7 @@ graph LR
 sequenceDiagram
     participant C as Customer Phone
     participant T as Twilio
-    participant API as FlowPilot API
+    participant API as Vesk API
     participant MS as MessagingService
     participant MR as MediatR
     participant RA as ReplyHandling Agent

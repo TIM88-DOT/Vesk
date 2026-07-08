@@ -1,24 +1,24 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: flowpilot_db
+    container_name: vesk_db
     environment:
-      POSTGRES_DB: flowpilot_dev
-      POSTGRES_USER: flowpilot
-      POSTGRES_PASSWORD: flowpilot_dev_pass
+      POSTGRES_DB: vesk_dev
+      POSTGRES_USER: vesk
+      POSTGRES_PASSWORD: vesk_dev_pass
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U flowpilot -d flowpilot_dev"]
+      test: ["CMD-SHELL", "pg_isready -U vesk -d vesk_dev"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   seq:
     image: datalust/seq:latest
-    container_name: flowpilot_seq
+    container_name: vesk_seq
     environment:
       ACCEPT_EULA: "Y"
       SEQ_PASSWORD: "failsafe123"

@@ -1,4 +1,4 @@
-# CLAUDE.md — FlowPilot AI
+# CLAUDE.md — Vesk AI
 
 AI-native communication OS for appointment-based SMBs.
 Multi-tenant SaaS. Modular monolith. Event-driven. Azure-native.
@@ -8,18 +8,18 @@ Multi-tenant SaaS. Modular monolith. Event-driven. Azure-native.
 ## Solution Structure
 
 ```
-FlowPilot.sln
+Vesk.sln
 ├── src/
-│   ├── FlowPilot.Api/            # Controllers, middleware, DI root
-│   ├── FlowPilot.Application/    # MediatR handlers, use cases, DTOs, agent orchestration
-│   ├── FlowPilot.Domain/         # BaseEntity, entities, enums, domain events
-│   ├── FlowPilot.Infrastructure/ # EF Core, Twilio, Service Bus, Azure OpenAI, repos
-│   ├── FlowPilot.Workers/        # IHostedService workers, Service Bus consumers
-│   └── FlowPilot.Shared/         # Result<T>, Error, ICurrentTenant, IFeatureGate, guards
+│   ├── Vesk.Api/            # Controllers, middleware, DI root
+│   ├── Vesk.Application/    # MediatR handlers, use cases, DTOs, agent orchestration
+│   ├── Vesk.Domain/         # BaseEntity, entities, enums, domain events
+│   ├── Vesk.Infrastructure/ # EF Core, Twilio, Service Bus, Azure OpenAI, repos
+│   ├── Vesk.Workers/        # IHostedService workers, Service Bus consumers
+│   └── Vesk.Shared/         # Result<T>, Error, ICurrentTenant, IFeatureGate, guards
 ├── tests/
-│   ├── FlowPilot.UnitTests/
-│   ├── FlowPilot.IntegrationTests/  # Tenant isolation, idempotency, consent gate
-│   └── FlowPilot.Architecture.Tests/ # ArchUnitNET: no cross-module references
+│   ├── Vesk.UnitTests/
+│   ├── Vesk.IntegrationTests/  # Tenant isolation, idempotency, consent gate
+│   └── Vesk.Architecture.Tests/ # ArchUnitNET: no cross-module references
 └── infra/                        # Azure Bicep
 ```
 
@@ -27,14 +27,14 @@ FlowPilot.sln
 
 ```bash
 # Backend
-dotnet build FlowPilot.sln
-dotnet test FlowPilot.sln --no-build
-dotnet run --project src/FlowPilot.Api
-dotnet ef migrations add <Name> --project src/FlowPilot.Infrastructure --startup-project src/FlowPilot.Api
-dotnet ef database update --project src/FlowPilot.Infrastructure --startup-project src/FlowPilot.Api
+dotnet build Vesk.sln
+dotnet test Vesk.sln --no-build
+dotnet run --project src/Vesk.Api
+dotnet ef migrations add <Name> --project src/Vesk.Infrastructure --startup-project src/Vesk.Api
+dotnet ef database update --project src/Vesk.Infrastructure --startup-project src/Vesk.Api
 
 # Frontend
-cd src/FlowPilot.Web
+cd src/Vesk.Web
 npm run dev
 npm run build
 npm run type-check
@@ -77,7 +77,7 @@ Never call `.IgnoreQueryFilters()` without a code comment explaining why.
 ```csharp
 // Always return Result<T>, never throw for business errors
 public async Task<Result<AppointmentDto>> ConfirmAsync(Guid id) { ... }
-// Error types live in FlowPilot.Shared
+// Error types live in Vesk.Shared
 ```
 
 ### AI / LLM Boundary — Critical
@@ -100,7 +100,7 @@ ArchUnitNET tests enforce this in CI.
 ---
 
 ## C# Conventions
-- Minimal APIs style in `FlowPilot.Api` — controllers only if already in place
+- Minimal APIs style in `Vesk.Api` — controllers only if already in place
 - `record` types for all DTOs
 - `Result<T>` for all service method returns — no business-logic exceptions
 - Async all the way — NEVER `.Result` or `.Wait()` — will cause deadlocks

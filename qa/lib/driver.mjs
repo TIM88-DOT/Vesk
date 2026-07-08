@@ -1,4 +1,4 @@
-// FlowPilot QA driver — reusable primitives for autonomous UI + API testing.
+// Vesk QA driver — reusable primitives for autonomous UI + API testing.
 // The qa-tester agent composes scenario scripts from these helpers. Keep it dependency-light:
 // only `playwright` + Node built-ins (global fetch requires Node 18+).
 

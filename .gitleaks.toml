@@ -1,4 +1,4 @@
-# gitleaks configuration for FlowPilot AI
+# gitleaks configuration for Vesk AI
 # Extends the upstream default ruleset and adds an allowlist for known,
 # intentional local-dev-only literals so the scan doesn't flag them.
 # NOTE: these are dev/CI placeholders only — never reuse them for any real
@@ -18,7 +18,7 @@ paths = [
 
 # Specific literal values used across local dev + CI
 regexes = [
-  '''flowpilot_dev_pass''',
+  '''vesk_dev_pass''',
   '''failsafe123''',
-  '''Password=flowpilot_dev_pass''',
+  '''Password=vesk_dev_pass''',
 ]

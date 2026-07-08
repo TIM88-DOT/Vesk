@@ -1,4 +1,4 @@
-# MCP Setup — FlowPilot AI
+# MCP Setup — Vesk AI
 
 Install exactly 4. Nothing else yet.
 
@@ -7,7 +7,7 @@ Install exactly 4. Nothing else yet.
 ## 1. GitHub MCP
 Manage PRs, issues, search reference code without leaving Claude Code.
 
-**Why for FlowPilot:** Look up Azure SDK examples, check open issues, create PRs from terminal.
+**Why for Vesk:** Look up Azure SDK examples, check open issues, create PRs from terminal.
 
 ```json
 {
@@ -29,7 +29,7 @@ PAT permissions needed: repo (read/write), pull_requests (read/write), issues (r
 ## 2. Context7 MCP
 Pulls live docs for .NET 8, EF Core, Azure Service Bus SDK, Azure OpenAI SDK, Twilio SDK.
 
-**Why for FlowPilot:** The Azure SDKs change fast. Context7 kills hallucinated API signatures.
+**Why for Vesk:** The Azure SDKs change fast. Context7 kills hallucinated API signatures.
 Usage: append `use context7` to any prompt.
 Example: "How do I cancel a deferred Service Bus message via SequenceNumber — use context7"
 
@@ -46,13 +46,13 @@ Example: "How do I cancel a deferred Service Bus message via SequenceNumber — 
 ---
 
 ## 3. Memory MCP
-Persist architectural decisions and FlowPilot-specific facts across sessions.
+Persist architectural decisions and Vesk-specific facts across sessions.
 
-**Why for FlowPilot:** Avoid re-explaining the multi-tenancy rules, idempotency keys, and AI boundary every session.
+**Why for Vesk:** Avoid re-explaining the multi-tenancy rules, idempotency keys, and AI boundary every session.
 
 Save things like:
-- `# Our Service Bus namespace is sb-flowpilot-dev`
-- `# Azure OpenAI deployment name is gpt4o-flowpilot`
+- `# Our Service Bus namespace is sb-vesk-dev`
+- `# Azure OpenAI deployment name is gpt4o-vesk`
 - `# Twilio Account SID is AC... (dev)`
 - `# We use EF Core snake_case convention`
 
@@ -72,9 +72,9 @@ Save things like:
 ---
 
 ## 4. PostgreSQL MCP
-Query your local FlowPilot DB directly — inspect schema, debug data, verify EF migrations.
+Query your local Vesk DB directly — inspect schema, debug data, verify EF migrations.
 
-**Why for FlowPilot:** Verify ScheduledAt index exists, check TenantId isolation, inspect EF-generated queries.
+**Why for Vesk:** Verify ScheduledAt index exists, check TenantId isolation, inspect EF-generated queries.
 Example: "Show me all ScheduledMessages with Status=Pending for tenant X"
 
 ```json
@@ -82,7 +82,7 @@ Example: "Show me all ScheduledMessages with Status=Pending for tenant X"
   "postgres": {
     "type": "stdio",
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/flowpilot_dev"]
+    "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/vesk_dev"]
   }
 }
 ```
@@ -123,7 +123,7 @@ Paste into Claude Code MCP settings (`~/.claude/claude_desktop_config.json` or t
       "args": [
         "-y",
         "@modelcontextprotocol/server-postgres",
-        "postgresql://localhost/flowpilot_dev"
+        "postgresql://localhost/vesk_dev"
       ]
     }
   }

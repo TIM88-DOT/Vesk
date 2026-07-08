@@ -1,0 +1,6 @@
+@Vesk.Api_HostAddress = http://localhost:5216
+
+GET {{Vesk.Api_HostAddress}}/health
+Accept: application/json
+
+###

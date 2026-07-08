@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# FlowPilot AI - one-shot dev starter
+# Vesk AI - one-shot dev starter
 # Boots: docker (postgres + seq) -> API -> Workers -> ngrok -> Web
 # Ctrl+C stops everything cleanly.
 
@@ -49,7 +49,7 @@ function Start-DevService {
 
     $script:Processes += $p
     Add-Content -Path $PidFile -Value $p.Id
-    Write-Host "[flowpilot] started $Name (PID $($p.Id)) -> .dev-logs\$Name.log"
+    Write-Host "[vesk] started $Name (PID $($p.Id)) -> .dev-logs\$Name.log"
 }
 
 function Stop-Tree {
@@ -65,7 +65,7 @@ function Stop-Tree {
 
 function Stop-All {
     Write-Host ""
-    Write-Host "[flowpilot] shutting down..."
+    Write-Host "[vesk] shutting down..."
     if ($script:TailJobs) {
         $script:TailJobs | Stop-Job       -ErrorAction SilentlyContinue
         $script:TailJobs | Remove-Job -Force -ErrorAction SilentlyContinue
@@ -76,18 +76,18 @@ function Stop-All {
             Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
         }
     }
-    Write-Host "[flowpilot] stopped."
+    Write-Host "[vesk] stopped."
 }
 
 try {
-    Write-Host "[flowpilot] starting docker (postgres + seq)..."
+    Write-Host "[vesk] starting docker (postgres + seq)..."
     docker compose up -d | Out-Null
 
-    Write-Host "[flowpilot] waiting for postgres to be healthy..."
+    Write-Host "[vesk] waiting for postgres to be healthy..."
     for ($i = 0; $i -lt 30; $i++) {
-        $status = (docker inspect -f '{{.State.Health.Status}}' flowpilot_db 2>$null)
+        $status = (docker inspect -f '{{.State.Health.Status}}' vesk_db 2>$null)
         if ($status -eq 'healthy') {
-            Write-Host "[flowpilot] postgres ready."
+            Write-Host "[vesk] postgres ready."
             break
         }
         Start-Sleep -Seconds 1
@@ -97,35 +97,35 @@ try {
         throw "Postgres did not become healthy in time."
     }
 
-    Write-Host "[flowpilot] building solution (prevents API/Workers MSBuild race on FlowPilot.Shared)..."
+    Write-Host "[vesk] building solution (prevents API/Workers MSBuild race on Vesk.Shared)..."
     $buildLog = Join-Path $LogDir 'build.log'
-    & dotnet build FlowPilot.sln --nologo -v minimal *> $buildLog
+    & dotnet build Vesk.sln --nologo -v minimal *> $buildLog
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[flowpilot] build FAILED - see .dev-logs\build.log" -ForegroundColor Red
+        Write-Host "[vesk] build FAILED - see .dev-logs\build.log" -ForegroundColor Red
         Get-Content $buildLog -Tail 40
         throw "dotnet build failed"
     }
-    Write-Host "[flowpilot] build ok."
+    Write-Host "[vesk] build ok."
 
-    Write-Host "[flowpilot] applying database migrations..."
+    Write-Host "[vesk] applying database migrations..."
     $migrationLog = Join-Path $LogDir 'migrate.log'
-    & dotnet ef database update --project src/FlowPilot.Infrastructure --startup-project src/FlowPilot.Api --no-build *> $migrationLog
+    & dotnet ef database update --project src/Vesk.Infrastructure --startup-project src/Vesk.Api --no-build *> $migrationLog
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[flowpilot] migration FAILED - see .dev-logs\migrate.log" -ForegroundColor Red
+        Write-Host "[vesk] migration FAILED - see .dev-logs\migrate.log" -ForegroundColor Red
         Get-Content $migrationLog -Tail 40
         throw "dotnet ef database update failed"
     }
-    Write-Host "[flowpilot] database up to date."
+    Write-Host "[vesk] database up to date."
 
     Start-DevService -Name 'api' -FilePath 'dotnet' `
-        -ArgumentList @('run','--project','src/FlowPilot.Api','--no-launch-profile','--no-build') `
+        -ArgumentList @('run','--project','src/Vesk.Api','--no-launch-profile','--no-build') `
         -EnvVars @{
             ASPNETCORE_ENVIRONMENT = 'Development'
             ASPNETCORE_URLS        = "http://localhost:$ApiPort"
         }
 
     Start-DevService -Name 'workers' -FilePath 'dotnet' `
-        -ArgumentList @('run','--project','src/FlowPilot.Workers','--no-build') `
+        -ArgumentList @('run','--project','src/Vesk.Workers','--no-build') `
         -EnvVars @{
             DOTNET_ENVIRONMENT     = 'Development'
             ASPNETCORE_ENVIRONMENT = 'Development'
@@ -136,17 +136,17 @@ try {
 
     Start-DevService -Name 'web' -FilePath 'npm.cmd' `
         -ArgumentList @('run','dev','--','--port',"$WebPort") `
-        -WorkingDirectory (Join-Path $Root 'src/FlowPilot.Web')
+        -WorkingDirectory (Join-Path $Root 'src/Vesk.Web')
 
     Write-Host ""
-    Write-Host "[flowpilot] all services launched:"
+    Write-Host "[vesk] all services launched:"
     Write-Host "  API       http://localhost:$ApiPort"
     Write-Host "  Web       http://localhost:$WebPort"
     Write-Host "  Ngrok     https://$NgrokUrl  ->  :$ApiPort"
     Write-Host "  Seq       http://localhost:5341"
-    Write-Host "  Postgres  localhost:5432  (flowpilot / flowpilot_dev_pass)"
+    Write-Host "  Postgres  localhost:5432  (vesk / vesk_dev_pass)"
     Write-Host ""
-    Write-Host "[flowpilot] tailing logs - press Ctrl+C to stop everything."
+    Write-Host "[vesk] tailing logs - press Ctrl+C to stop everything."
     Write-Host ""
 
     $logs = @(

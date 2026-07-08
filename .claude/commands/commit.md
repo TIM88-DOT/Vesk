@@ -1,6 +1,6 @@
 # /commit
 
-Generate a conventional commit for staged changes — FlowPilot scoped.
+Generate a conventional commit for staged changes — Vesk scoped.
 
 1. Run `git diff --cached --stat` and `git diff --cached`
 2. Identify the primary bounded context changed:

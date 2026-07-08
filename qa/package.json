@@ -1,9 +1,9 @@
 {
-  "name": "flowpilot-qa",
+  "name": "vesk-qa",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Autonomous QA harness — Playwright UI journeys + API probes against the running FlowPilot/Relora app.",
+  "description": "Autonomous QA harness — Playwright UI journeys + API probes against the running Vesk app.",
   "scripts": {
     "smoke": "node scenarios/smoke.mjs",
     "install:browser": "playwright install chromium"

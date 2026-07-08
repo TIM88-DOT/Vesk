@@ -51,7 +51,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "dotnet build FlowPilot.sln --no-incremental -q 2>&1 | tail -5"
+            "command": "dotnet build Vesk.sln --no-incremental -q 2>&1 | tail -5"
           }
         ]
       }

@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=vesk_dev;Username=vesk;Password=vesk_dev_pass"
+  }
+}

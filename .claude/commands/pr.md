@@ -13,7 +13,7 @@ Create a GitHub PR for the current branch.
 **Why:**
 1–2 sentences on the problem this solves.
 
-**FlowPilot checklist:**
+**Vesk checklist:**
 - [ ] BaseEntity inherited by all new entities
 - [ ] TenantId from ICurrentTenant only (not request body)
 - [ ] EF Core global filters not bypassed without justification

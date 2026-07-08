@@ -1,4 +1,4 @@
-# Sprint 1 — FlowPilot AI
+# Sprint 1 — Vesk AI
 **Goal:** Working API + React skeleton. Full AI reminder workflow. Multilingual. Demo-ready.
 **Duration:** 2 weeks
 **Status (2026-04-12):** Core MVP demo loop works end-to-end. Items left unchecked below are genuinely not done yet and carry into Sprint 2 (see `sprint2.md`). Canadian-market pivot: bilingual is now **FR + EN** wherever the spec says `fr + ar`.
@@ -7,7 +7,7 @@
 
 ## Day 1–2: Project & Domain Foundation
 
-- [x] Create solution: `dotnet new sln -n FlowPilot`
+- [x] Create solution: `dotnet new sln -n Vesk`
 - [x] Create projects: Api, Application, Domain, Infrastructure, Workers, Shared
 - [x] Add project references (Shared → Domain → Application → Infrastructure → Api)
 - [x] Add Directory.Build.props: `net8.0`, nullable, implicit usings
@@ -90,7 +90,7 @@
 
 ## Day 13–14: React Frontend Skeleton + CI/CD
 
-- [x] `npm create vite@latest flowpilot-web -- --template react-ts`
+- [x] `npm create vite@latest vesk-web -- --template react-ts`
 - [x] Install: TanStack Query, React Hook Form, Zod, React Router v6, Recharts, TanStack Table, axios, shadcn/ui
 - [x] `AuthProvider` — bootstrap: POST /auth/refresh before rendering protected routes
 - [x] axios 401 interceptor — silent refresh + retry

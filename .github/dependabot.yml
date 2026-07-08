@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Backend — NuGet across the solution (FlowPilot.sln + all .csproj)
+  # Backend — NuGet across the solution (Vesk.sln + all .csproj)
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
@@ -16,7 +16,7 @@ updates:
 
   # Frontend — npm for the Vite/React app
   - package-ecosystem: "npm"
-    directory: "/src/FlowPilot.Web"
+    directory: "/src/Vesk.Web"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10

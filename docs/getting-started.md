@@ -1,4 +1,4 @@
-# Getting Started — FlowPilot Dev Environment
+# Getting Started — Vesk Dev Environment
 
 Work through this once, top to bottom. Takes ~1.5 hours.
 
@@ -35,7 +35,7 @@ Work through this once, top to bottom. Takes ~1.5 hours.
 - [ ] Install EF Core tools: `dotnet tool install --global dotnet-ef`
 - [ ] Start local infra: `docker compose up -d`
 - [ ] Verify:
-  - Postgres: `docker exec -it flowpilot_db psql -U flowpilot -d flowpilot_dev`
+  - Postgres: `docker exec -it vesk_db psql -U vesk -d vesk_dev`
   - Seq UI: http://localhost:5341
 
 ---
@@ -47,11 +47,11 @@ Work through this once, top to bottom. Takes ~1.5 hours.
 - [ ] Open Claude Code MCP settings panel
 - [ ] Paste full config block from `docs/mcp-setup.md`
 - [ ] Replace `TODO: your PAT` with your actual PAT
-- [ ] Replace Postgres connection string with: `postgresql://flowpilot:flowpilot_dev_pass@localhost/flowpilot_dev`
+- [ ] Replace Postgres connection string with: `postgresql://vesk:vesk_dev_pass@localhost/vesk_dev`
 - [ ] Restart Claude Code
 - [ ] Test GitHub MCP: "list my open GitHub issues"
 - [ ] Test Context7: "how do I cancel a deferred Azure Service Bus message by SequenceNumber — use context7"
-- [ ] Test Postgres MCP: "show me all tables in flowpilot_dev" (after Migration 001)
+- [ ] Test Postgres MCP: "show me all tables in vesk_dev" (after Migration 001)
 - [ ] Seed memory (run in Claude Code):
   ```
   # TenantId always from ICurrentTenant (JWT), never request body

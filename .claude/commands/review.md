@@ -1,6 +1,6 @@
 # /review
 
-Senior .NET + React code review — FlowPilot architecture lens.
+Senior .NET + React code review — Vesk architecture lens.
 
 Run `git diff main...HEAD` and review everything changed.
 
