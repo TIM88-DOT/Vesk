@@ -1,10 +1,12 @@
-# Relora AI ✨
+# Vesk ✨
+
+*(formerly FlowPilot AI, briefly Relora AI)*
 
 **Appointments that manage themselves.**
 
 An AI-native communication OS for appointment-based small businesses — salons, clinics, barbers, studios, dentists. Bilingual (FR + EN), built for the Canadian market.
 
-> **Heads up — the product was renamed.** The repo, .NET solution, projects, and namespaces are all still `FlowPilot.*` (the old working name). Everything the user sees is **Relora AI**. The source-tree rename is planned but not yet done, so expect `FlowPilot` in paths and `dotnet` commands.
+> **Heads up — the product has been renamed twice.** The repo, .NET solution, projects, and namespaces are all still `FlowPilot.*` (the original working name; briefly rebranded **Relora AI** along the way). Everything the user sees now is **Vesk**. The source-tree rename is planned but not yet done, so expect `FlowPilot` in paths and `dotnet` commands.
 
 ---
 
@@ -16,7 +18,7 @@ The owner of a 3-chair salon doesn't want a CRM or another dashboard. They want 
 
 Existing tools make them work harder. Booking software sends dumb reminders at fixed hours. Marketing tools spam everyone with the same campaign. Review platforms ask for feedback at random. And almost all of them are English-only — a non-starter in Montreal, Québec City, or half of Ontario.
 
-Relora flips this. The AI *is* the workflow, not a chatbot bolted onto one. It picks when to remind, in which language, using which tone. It reads incoming replies and updates the appointment with no human in the loop. It waits for the right moment to ask for a review, and only asks clients likely to leave a good one.
+Vesk flips this. The AI *is* the workflow, not a chatbot bolted onto one. It picks when to remind, in which language, using which tone. It reads incoming replies and updates the appointment with no human in the loop. It waits for the right moment to ask for a review, and only asks clients likely to leave a good one.
 
 **The bet:** the next generation of SMB software won't have settings pages. It will have outcomes, and an AI agent that takes responsibility for them.
 
@@ -84,7 +86,7 @@ FlowPilot.sln
 └── docs/                         Architecture diagrams, sprint plans
 ```
 
-> Reminder: every `FlowPilot.*` name above is the old working name. Product = **Relora AI**, source tree = **FlowPilot** until the rename lands.
+> Reminder: every `FlowPilot.*` name above is the original working name (briefly rebranded **Relora AI**). Product = **Vesk**, source tree = **FlowPilot** until the rename lands.
 
 ---
 
