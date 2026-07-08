@@ -1,0 +1,40 @@
+{"id": 1, "message": "Yes", "lang": "en", "expected": "Confirm", "acceptable": [], "category": "clear", "trap": false, "note": "Baseline single-word affirmative."}
+{"id": 2, "message": "Confirmed, see you then", "lang": "en", "expected": "Confirm", "acceptable": [], "category": "clear", "trap": false, "note": "Explicit confirmation."}
+{"id": 3, "message": "I'll be there", "lang": "en", "expected": "Confirm", "acceptable": [], "category": "clear", "trap": false, "note": "Implicit-but-strong confirmation."}
+{"id": 4, "message": "Je confirme", "lang": "fr", "expected": "Confirm", "acceptable": [], "category": "clear", "trap": false, "note": "French explicit confirm."}
+{"id": 5, "message": "Oui je serai là", "lang": "fr", "expected": "Confirm", "acceptable": [], "category": "clear", "trap": false, "note": "French affirmative + presence."}
+{"id": 6, "message": "C'est bon pour moi", "lang": "fr", "expected": "Confirm", "acceptable": [], "category": "clear", "trap": false, "note": "French idiomatic agreement."}
+{"id": 7, "message": "I need to cancel", "lang": "en", "expected": "Cancel", "acceptable": [], "category": "clear", "trap": false, "note": "Explicit cancel."}
+{"id": 8, "message": "Can't make it, please cancel", "lang": "en", "expected": "Cancel", "acceptable": [], "category": "clear", "trap": false, "note": "Cancel with reason."}
+{"id": 9, "message": "Je dois annuler", "lang": "fr", "expected": "Cancel", "acceptable": [], "category": "clear", "trap": false, "note": "French explicit cancel."}
+{"id": 10, "message": "Je ne peux pas venir", "lang": "fr", "expected": "Cancel", "acceptable": [], "category": "clear", "trap": false, "note": "French cannot-attend => cancel."}
+{"id": 11, "message": "Can we move it to Friday?", "lang": "en", "expected": "Reschedule", "acceptable": [], "category": "clear", "trap": false, "note": "Reschedule with proposed day."}
+{"id": 12, "message": "I need a different time", "lang": "en", "expected": "Reschedule", "acceptable": [], "category": "clear", "trap": false, "note": "Reschedule intent, no specific slot."}
+{"id": 13, "message": "Peut-on reporter a la semaine prochaine?", "lang": "fr", "expected": "Reschedule", "acceptable": [], "category": "clear", "trap": false, "note": "French reschedule request."}
+{"id": 14, "message": "Je veux changer l'heure", "lang": "fr", "expected": "Reschedule", "acceptable": [], "category": "clear", "trap": false, "note": "French change-the-time."}
+{"id": 15, "message": "What time is my appointment?", "lang": "en", "expected": "Question", "acceptable": [], "category": "clear", "trap": false, "note": "Info question."}
+{"id": 16, "message": "How much does it cost?", "lang": "en", "expected": "Question", "acceptable": [], "category": "clear", "trap": false, "note": "Pricing question."}
+{"id": 17, "message": "C'est a quelle heure?", "lang": "fr", "expected": "Question", "acceptable": [], "category": "clear", "trap": false, "note": "French time question."}
+{"id": 18, "message": "Vous etes situes ou?", "lang": "fr", "expected": "Question", "acceptable": [], "category": "clear", "trap": false, "note": "French location question."}
+{"id": 19, "message": "Nice", "lang": "en", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "Acknowledgment after a booking notice, NOT a confirmation."}
+{"id": 20, "message": "Cool, thanks!", "lang": "en", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "Gratitude ack, not confirm."}
+{"id": 21, "message": "Thank you", "lang": "en", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "Politeness, not confirm."}
+{"id": 22, "message": "👍", "lang": "emoji", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "Thumbs-up is the classic false-confirm. Prompt explicitly says 👍 = Other; a high-conf Confirm here would auto-confirm wrongly."}
+{"id": 23, "message": "Merci", "lang": "fr", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "French thanks, not confirm."}
+{"id": 24, "message": "Parfait merci", "lang": "fr", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "Reads positive but is a gratitude ack, not a confirmation."}
+{"id": 25, "message": "D'accord", "lang": "fr", "expected": "Other", "acceptable": [], "category": "ambiguous", "trap": true, "note": "'Okay/agreed' - literally means 'agreed', so tempting to Confirm, but the prompt lists it as an ack => Other. Prime confident-wrong candidate."}
+{"id": 26, "message": "😊", "lang": "emoji", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "Smiley, no intent."}
+{"id": 27, "message": "no problem", "lang": "en", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "Contains 'no' but is an ack; must NOT read as Cancel."}
+{"id": 28, "message": "👌", "lang": "emoji", "expected": "Other", "acceptable": [], "category": "acknowledgment", "trap": true, "note": "OK-hand; same false-confirm risk as thumbs-up."}
+{"id": 29, "message": "Ouais pourquoi pas", "lang": "fr", "expected": "Confirm", "acceptable": ["Other"], "category": "ambiguous", "trap": true, "note": "Casual 'yeah why not' - leans confirm but low-commitment; confidence should be modest."}
+{"id": 30, "message": "peut-etre", "lang": "fr", "expected": "Other", "acceptable": ["Question"], "category": "ambiguous", "trap": true, "note": "'Maybe' - non-committal, should NOT confirm."}
+{"id": 31, "message": "maybe", "lang": "en", "expected": "Other", "acceptable": [], "category": "ambiguous", "trap": true, "note": "Non-committal, should escalate not act."}
+{"id": 32, "message": "I guess so", "lang": "en", "expected": "Confirm", "acceptable": ["Other"], "category": "ambiguous", "trap": true, "note": "Reluctant yes; low-confidence confirm is the correct-and-safe outcome."}
+{"id": 33, "message": "ok?", "lang": "en", "expected": "Question", "acceptable": ["Other"], "category": "ambiguous", "trap": true, "note": "Question mark flips 'ok' from confirm to a query."}
+{"id": 34, "message": "hmm", "lang": "en", "expected": "Other", "acceptable": [], "category": "ambiguous", "trap": true, "note": "No actionable intent."}
+{"id": 35, "message": "Cancel and rebook for next week", "lang": "en", "expected": "Reschedule", "acceptable": ["Cancel"], "category": "ambiguous", "trap": true, "note": "Double intent; reschedule is the customer's true goal but 'cancel' is present."}
+{"id": 36, "message": "10h ca marche", "lang": "fr", "expected": "Confirm", "acceptable": ["Other"], "category": "ambiguous", "trap": true, "note": "Confirming a proposed time; needs appointment context the standalone eval lacks."}
+{"id": 37, "message": "Oui but what time?", "lang": "mixed", "expected": "Question", "acceptable": ["Confirm"], "category": "ambiguous", "trap": true, "note": "Mixed-language, mixed-intent: agrees AND asks. The open question dominates."}
+{"id": 38, "message": "cofnirm", "lang": "en", "expected": "Confirm", "acceptable": [], "category": "adversarial", "trap": true, "note": "Typo of 'confirm' - tests robustness to misspelling."}
+{"id": 39, "message": "K", "lang": "en", "expected": "Other", "acceptable": ["Confirm"], "category": "ambiguous", "trap": true, "note": "Terse 'k' - agreement or dismissal; should not auto-act with high confidence."}
+{"id": 40, "message": "See you tomorrow", "lang": "en", "expected": "Confirm", "acceptable": ["Other"], "category": "ambiguous", "trap": true, "note": "Implicit confirmation via presence statement."}

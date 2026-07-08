@@ -1,0 +1,13 @@
+{
+  "name": "vesk-intent-evals",
+  "version": "1.0.0",
+  "description": "Offline eval harness for the Vesk SMS intent classifier",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "eval": "node run-evals.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
