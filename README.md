@@ -15,93 +15,163 @@
 </tr>
 </table>
 
-## How it's built
+Vesk is a multi-tenant SaaS that automates customer communication for appointment-based small
+businesses. It's a production-grade .NET + React system, and it's also where I build and test
+**multi-step AI agent pipelines** — the kind that classify an inbound message, decide what it means,
+and take an action without a human in the loop.
 
-<img src="docs/architecture-layers.svg" alt="Vesk layered architecture: Api, Application, Infrastructure, Domain, Shared, Workers, Web" width="100%" />
-
-*(More diagrams — event flow, SMS sequence, appointment state machine — in [`docs/architecture-all.md`](docs/architecture-all.md).)*
+> **New here for the AI pipeline work?** Jump to [**The AI pipeline — proven and portable**](#-the-ai-pipeline--proven-and-portable).
+> It's one real workflow shown three ways: the production C# version, an [eval set](evals/) that
+> measures how the LLM fails, and the same pipeline [rebuilt in n8n](n8n/).
 
 ---
 
-## 💡 Why this exists
+## 💡 Why we built it
 
-Small businesses don't lose money because they're bad at their craft. They lose it in the gaps between appointments — no-shows, silent customers, reviews that never got asked for, reminders sent in the wrong language.
+Small businesses don't lose money because they're bad at their craft. They lose it in the gaps
+*between* appointments — no-shows, silent customers, reviews that never got asked for, reminders sent
+in the wrong language.
 
-The owner of a 3-chair salon doesn't want a CRM or another dashboard. They want the *outcome*: full chairs, clients on time, 5-star reviews rolling in. Everything else is overhead.
+The owner of a 3-chair salon doesn't want a CRM or another dashboard. They want the *outcome*: full
+chairs, clients on time, 5-star reviews rolling in. Existing tools make them work harder — booking
+software sends dumb reminders at fixed hours, marketing tools spam everyone with the same campaign,
+and almost all of them are English-only, a non-starter in Montréal, Québec City, or half of Ontario.
 
-Existing tools make them work harder. Booking software sends dumb reminders at fixed hours. Marketing tools spam everyone with the same campaign. Review platforms ask for feedback at random. And almost all of them are English-only — a non-starter in Montreal, Québec City, or half of Ontario.
-
-Vesk flips this. The AI *is* the workflow, not a chatbot bolted onto one. It picks when to remind, in which language, using which tone. It reads incoming replies and updates the appointment with no human in the loop. It waits for the right moment to ask for a review, and only asks clients likely to leave a good one.
-
-**The bet:** the next generation of SMB software won't have settings pages. It will have outcomes, and an AI agent that takes responsibility for them.
+**Vesk flips this: the AI *is* the workflow, not a chatbot bolted onto one.** It decides when to
+remind, in which language and tone; it reads incoming replies and updates the appointment itself; and
+it only asks for a review when someone is actually likely to leave a good one.
 
 ---
 
 ## 🚀 What it does
 
-- **Smart bilingual reminders.** Per-client language (FR/EN), per-client send-time picked by an LLM agent based on past response patterns — not a static 24h-before rule.
-- **Conversational SMS, both directions.** Inbound replies are intent-classified, matched to the appointment, and answered or rescheduled automatically. A reschedule link drops the client on a mobile public booking page.
-- **Automatic review recovery.** Post-appointment, a deterministic cooldown gate + AI confidence score decide who gets a review request. Link goes straight to Google, Facebook, or Trustpilot.
-- **Public booking without an account.** Every tenant gets `/book/{slug}`. Pick service → slot → phone → confirm. Consent capture and phone-based dedup are handled server-side.
-- **No-show scoring + at-risk flags.** Rolling per-customer score, extra confirmation touch for at-risk appointments, auto-completion when end time passes.
-- **Owner-grade dashboard.** Live feed over SignalR, weekly stats, at-risk list — glanceable on a phone between clients.
+- **Smart bilingual reminders.** Per-client language (FR/EN) and an LLM-picked send-time based on past
+  response patterns — not a static 24h-before rule.
+- **Conversational SMS, both directions.** Inbound replies are intent-classified, matched to the
+  appointment, and confirmed / cancelled / rescheduled automatically.
+- **Automatic review recovery.** A deterministic cooldown gate + AI confidence score decide who gets a
+  review request, with the link going straight to Google, Facebook, or Trustpilot.
+- **Public booking without an account.** Every tenant gets `/book/{slug}`: service → slot → phone →
+  confirm, with consent capture and phone-based dedup handled server-side.
+- **No-show scoring + at-risk flags.** A rolling per-customer score adds an extra confirmation touch
+  for risky appointments.
+- **Owner-grade dashboard.** A live SignalR feed and weekly stats, glanceable on a phone between
+  clients.
 
 ---
 
-## 🧭 Design principles
+## 🔧 How it works
 
-- **The application is the source of truth.** Business rules never live in a prompt. Consent checks, cooldown windows, business-hours gates, status transitions — deterministic C# that runs *before* any LLM call. The AI decides timing, tone, and intent; the code enforces what's legal and possible.
-- **Multi-tenant isolation is a precondition, not a feature.** `TenantId` on every entity, EF Core global query filters on every query, tenant validation on every Service Bus message, cross-tenant tests on every CI run. A tenant leak is product-ending, so it's built to be impossible.
-- **Privacy-first.** Soft delete everywhere, GDPR-style anonymization on customer delete, append-only consent log. Column-level encryption on phone/email is in progress.
-- **Events, not cron jobs.** No Hangfire, no Quartz. Scheduling = Azure Service Bus deferred messages with sequence numbers stored on the row, so anything can be cancelled deterministically on reschedule or cancel.
-- **One monolith, nine bounded contexts.** Tenants · Identity & Auth · Customers · Appointments · Messaging · Campaigns · AI/Agents · Billing · Analytics. Modules never touch each other's `DbContext` — ArchUnitNET tests fail the build if they do.
+<img src="docs/architecture-layers.svg" alt="Vesk layered architecture: Api, Application, Infrastructure, Domain, Shared, Workers, Web" width="100%" />
+
+A modular monolith — one deployable, nine bounded contexts (Tenants · Identity · Customers ·
+Appointments · Messaging · Campaigns · AI/Agents · Billing · Analytics) that talk only through events,
+never each other's database. *(Event flow, SMS sequence, and appointment-state diagrams in
+[`docs/architecture-all.md`](docs/architecture-all.md).)*
+
+### The core AI workflow: an inbound SMS becomes an action
+
+This is the pipeline the eval set and the n8n port both target, in plain terms:
+
+```
+Customer texts back  →  1. Reject spoofed webhooks (Twilio signature)
+"Oui je serai là"       2. Ignore duplicates      (dedup on the message id)
+                        3. Handle STOP/START       (legal opt-out, in code — never the LLM)
+                        4. Ask the LLM: what did they mean?   → intent + confidence (0–1)
+                        5. Act ONLY if confident:
+                             confident (≥0.85) → auto-confirm / cancel / send reschedule link
+                             unsure   (<0.75)  → escalate to a human
+```
+
+The one rule that governs the whole thing: **the application is the source of truth, never the
+prompt.** The LLM decides *timing, tone, and intent*. Deterministic C# decides *what's legal and
+safe* — consent checks, opt-out keywords, business-hours gates, and the confidence threshold that
+guards every automatic action. The AI proposes; the code is the gate.
+
+A few other principles that fall out of that:
+
+- **Multi-tenant isolation is a precondition, not a feature.** `TenantId` on every row, EF Core global
+  query filters on every query, and cross-tenant tests on every CI run. A tenant leak is
+  product-ending, so it's built to be impossible.
+- **Events, not cron jobs.** Scheduling is Azure Service Bus deferred messages (no Hangfire/Quartz),
+  so any pending reminder can be cancelled deterministically when a client reschedules.
+- **Idempotency everywhere.** Twilio retries webhooks, so every inbound message is deduped on its
+  provider id — a unique DB constraint, not a hope.
 
 ---
 
-## 🩹 Failure modes and lessons
+## 🧪 The AI pipeline — proven and portable
 
-Real incidents from building this, not hypotheticals — the failure, the root cause, and the fix.
+The inbound-SMS workflow above is shown three ways in this repo. Same prompt, same intent schema,
+same 0.85 / 0.75 thresholds across all three:
+
+| | What it is | Where |
+|---|---|---|
+| **Production** | The real C# agent: LLM classification behind deterministic consent/idempotency/threshold gates. | [`src/Vesk.Infrastructure/Agents/ReplyHandlingAgent.cs`](src/Vesk.Infrastructure/Agents/ReplyHandlingAgent.cs) |
+| **Eval set** | 40 bilingual test messages that measure *how the classifier fails* — separating "wrong but caught by the confidence gate" from "wrong **and** confident enough to auto-act." Runs with just an OpenAI key. | [**`evals/`**](evals/) |
+| **n8n replica** | The same pipeline rebuilt as a low-code n8n workflow, with an honest write-up of where visual tooling helps and where it gets awkward (non-atomic dedup, compound confidence logic, error handling). | [**`n8n/`**](n8n/) |
+
+**Why these two extras matter:** the eval set turns "how do LLMs fail?" into data — the standout
+finding is that the classifier will confidently read a casual "👍" or "D'accord" as a *confirmation*,
+which is exactly the failure the confidence gate exists to stop. The n8n port shows the same workflow
+solved in a completely different toolset, and names the trade-offs you make moving between them. Each
+has its own README with run instructions.
+
+---
+
+## 🩹 What broke while building it
+
+Real incidents, not hypotheticals — the failure, the root cause, and the fix.
 
 **1. The AI agent scheduled a reminder in the past — and lied about the time in it.**
-Early on, the reminder-optimization LLM agent picked its own send time *and* wrote the "time remaining" text itself. Live testing on a 2-hour-out appointment showed it scheduling the urgent reminder in the past, with body text saying "in 3h" when the real gap was 1 hour — a message that would dispatch immediately with wrong information.
-*Root cause:* a business rule (accurate time math) was delegated to the LLM instead of enforced in code — a direct violation of the project's own "AI never owns hard gates" rule.
-*Fix:* moved time-phrase formatting into deterministic C# (`ReminderTimePhrase`), added a `{time_until}` token the agent must use instead of writing a number, and made the scheduling tool reject any `sendAt` in the past or at/after the appointment start. The agent proposes; the tool call is the actual gate.
+The reminder agent picked its own send time *and* wrote the "time remaining" text. On a 2-hour-out
+appointment it scheduled the urgent reminder in the past, with body text saying "in 3h" when the real
+gap was 1 hour.
+*Root cause:* a business rule (accurate time math) was delegated to the LLM instead of enforced in
+code — a direct violation of the project's own "AI never owns hard gates" rule.
+*Fix:* moved time-phrase formatting into deterministic C# (`ReminderTimePhrase`), gave the agent a
+`{time_until}` token instead of letting it write a number, and made the scheduling tool reject any
+`sendAt` in the past or after the appointment start.
 
 **2. Three things sending SMS at once corrupted the monthly usage counter.**
-Concurrent SMS sends for the same tenant — an inbound reply, the reminder dispatcher, and the no-show worker — all hit the same `(plan, year, month)` usage row with a read-then-insert find-or-create. Under concurrency this raced the unique constraint and threw a Postgres `23505`, surfacing as flaky test failures and a live 500 risk.
-*Root cause:* "check then write" isn't atomic, and three independent code paths had each grown their own copy of the same find-or-create logic.
-*Fix:* replaced all three call sites with one shared `UsageTracker.IncrementSmsSentAsync` doing `INSERT … ON CONFLICT DO UPDATE`, so concurrent sends serialize in the database instead of racing in application code.
+Concurrent sends for one tenant — an inbound reply, the reminder dispatcher, the no-show worker — all
+hit the same `(plan, year, month)` usage row with a read-then-insert, racing the unique constraint and
+throwing Postgres `23505`.
+*Root cause:* "check then write" isn't atomic, and three code paths had each grown their own copy of it.
+*Fix:* one shared `UsageTracker.IncrementSmsSentAsync` doing `INSERT … ON CONFLICT DO UPDATE`, so
+concurrent sends serialize in the database instead of racing in application code.
 
 **3. A dev-only JWT secret sat in the public repo's history.**
-`appsettings.Development.json` — carrying a JWT signing key and a local DB password — was tracked in git from an early commit onward. It's a demo project, not a production one, but "public repo with a committed secret" is exactly the kind of thing that gets flagged, and rotating it after the fact doesn't remove it from history.
-*Root cause:* the default `dotnet new` template tracks `appsettings.*.json` by default, and nothing in the early setup opted the Development file out.
-*Fix:* untracked both API and Workers dev config, added `.example` templates for onboarding, pinned every CI Action to a commit SHA, and added job timeouts + broader secret-scanning triggers so the gap (and the class of gap) doesn't recur. Removing a secret rewrites nothing in history — it stayed rotated instead.
+`appsettings.Development.json` — with a JWT signing key and a local DB password — was tracked from an
+early commit. A demo project, but a committed secret in a public repo is exactly what gets flagged, and
+rotating it after the fact doesn't remove it from history.
+*Root cause:* the `dotnet new` template tracks `appsettings.*.json` by default and nothing opted the
+Development file out.
+*Fix:* untracked both API and Workers dev config, added `.example` templates, pinned every CI Action to
+a commit SHA, and broadened secret-scanning triggers.
 
 **4. The frontend was hammering `/auth/refresh` on every page load.**
-QA noticed a burst of ~12 aborted `/auth/refresh` calls per user journey. The `AuthProvider` bootstrap and the axios 401 interceptor each independently fired their own refresh call, and optimistic rendering kicked off page queries before the token was even set — so multiple 401s could each trigger their own refresh in parallel.
-*Root cause:* two independent code paths assumed they were the only thing that could trigger a refresh; neither knew about the other.
-*Fix:* one shared single-flight `refreshSession()` in `lib/api.ts` that both paths call into, replacing the interceptor's ad-hoc queuing. Aborted calls per journey dropped from ~12 to ~4 (the remainder are unrelated navigation-cancel aborts).
+QA saw ~12 aborted `/auth/refresh` calls per journey: the `AuthProvider` bootstrap and the axios 401
+interceptor each fired their own refresh, and optimistic rendering kicked off queries before the token
+was set.
+*Root cause:* two independent code paths each assumed they were the only thing that could trigger a
+refresh.
+*Fix:* one shared single-flight `refreshSession()` in `lib/api.ts` that both call into. Aborted calls
+per journey dropped from ~12 to ~4.
 
 ---
 
 ## 🛠️ Tech
 
-**Backend**
-- .NET 8 minimal APIs, MediatR for in-process domain events, `Result<T>` on all service boundaries
-- EF Core 8 on PostgreSQL, snake_case, global query filters on every entity
-- Azure Service Bus for scheduled messages, integration events, and worker queues
-- Azure OpenAI (`Azure.AI.OpenAI`) for reminder optimization, intent classification, review confidence
-- Twilio SMS behind `ISmsProvider` (fake provider for tests and local dev)
-- SignalR for real-time dashboard, Seq for local structured logs
+**Backend** — .NET 8 minimal APIs, MediatR for in-process domain events, `Result<T>` on all service
+boundaries, EF Core 8 on PostgreSQL, Azure Service Bus for scheduling/events, Azure OpenAI for the
+agents, Twilio SMS behind `ISmsProvider`, SignalR for the live dashboard.
 
-**Frontend**
-- React 18 + TypeScript (strict, no `any`)
-- TanStack Query for server state, React Hook Form + Zod for forms
-- Tailwind + shadcn/ui, Mintlify-inspired design system (see [`DESIGN.md`](DESIGN.md))
-- JWT in memory, refresh token in `httpOnly` cookie, code-split public booking flow
+**Frontend** — React 18 + TypeScript (strict, no `any`), TanStack Query, React Hook Form + Zod,
+Tailwind + shadcn/ui (see [`DESIGN.md`](DESIGN.md)). JWT in memory, refresh token in an `httpOnly`
+cookie.
 
-**Infra**
-- Azure Bicep in `infra/`, Docker Compose for local PostgreSQL + Seq
+**Infra** — Azure Bicep in `infra/`, Docker Compose for local PostgreSQL + Seq.
 
 ---
 
@@ -113,16 +183,15 @@ Vesk.sln
 │   ├── Vesk.Api/            Controllers, middleware, DI root
 │   ├── Vesk.Application/    MediatR handlers, DTOs, agent orchestration
 │   ├── Vesk.Domain/         Entities, enums, domain events
-│   ├── Vesk.Infrastructure/ EF Core, Twilio, Service Bus, Azure OpenAI
+│   ├── Vesk.Infrastructure/ EF Core, Twilio, Service Bus, Azure OpenAI, agents
 │   ├── Vesk.Workers/        IHostedService workers, Service Bus consumers
 │   ├── Vesk.Shared/         Result<T>, Error types, guards, interfaces
 │   └── Vesk.Web/            React + Vite frontend
-├── tests/
-│   ├── Vesk.UnitTests/
-│   ├── Vesk.IntegrationTests/     Tenant isolation, idempotency, consent gate
-│   └── Vesk.Architecture.Tests/   ArchUnitNET: no cross-module leaks
-├── infra/                        Azure Bicep
-└── docs/                         Architecture diagrams, sprint plans
+├── tests/                   Unit, integration (tenant isolation, idempotency), architecture
+├── evals/                   ⭐ Offline eval set for the SMS intent classifier
+├── n8n/                     ⭐ The inbound-SMS pipeline rebuilt in n8n + comparison write-up
+├── infra/                   Azure Bicep
+└── docs/                    Architecture diagrams, sprint plans
 ```
 
 ---
@@ -139,22 +208,30 @@ dotnet ef database update --project src/Vesk.Infrastructure --startup-project sr
 dotnet run --project src/Vesk.Api
 
 # Frontend (separate terminal)
-cd src/Vesk.Web
-npm install
-npm run dev
+cd src/Vesk.Web && npm install && npm run dev
 
 # Tests
 dotnet test Vesk.sln
 ```
 
-API on `https://localhost:7xxx`, web on `http://localhost:5173`. Register a tenant from the UI — the account is seeded with FR + EN templates and a default plan. `start.ps1` / `stop.ps1` at the repo root bring the full stack up and down on Windows.
+API on `https://localhost:7xxx`, web on `http://localhost:5173`. Register a tenant from the UI — the
+account is seeded with FR + EN templates and a default plan. `start.ps1` / `stop.ps1` bring the full
+stack up and down on Windows.
+
+To run just the AI-pipeline artifacts, see [`evals/README.md`](evals/README.md) and
+[`n8n/README.md`](n8n/README.md) — both run standalone with only an OpenAI key.
 
 ---
 
 ## 📍 Status
 
-Sprint 1 shipped the full MVP demo loop: auth, tenants, customers with consent, appointments, bilingual reminder workflow, public booking, review request flow, real-time dashboard. Sprint 2 is the path to Azure production — column encryption, per-tenant Twilio provisioning, at-risk polish, auto-completion worker. See [`docs/sprint1.md`](docs/sprint1.md) and [`docs/sprint2.md`](docs/sprint2.md).
+Sprint 1 shipped the full MVP demo loop: auth, tenants, customers with consent, appointments, the
+bilingual reminder workflow, public booking, review requests, and the real-time dashboard. Sprint 2 is
+the path to Azure production — column encryption, per-tenant Twilio provisioning, at-risk polish, and
+the auto-completion worker. See [`docs/sprint1.md`](docs/sprint1.md) and
+[`docs/sprint2.md`](docs/sprint2.md).
 
 ---
 
-<sub>Vesk was built as FlowPilot AI, briefly rebranded Relora AI, and now ships as Vesk — the source tree, namespaces, and repo have all been renamed to match.</sub>
+<sub>Vesk was built as FlowPilot AI, briefly rebranded Relora AI, and now ships as Vesk — the source
+tree, namespaces, and repo have all been renamed to match.</sub>
