@@ -45,6 +45,22 @@ IMPORTANT — Distinguish acknowledgment from confirmation:
 
 You must always call the classify_intent function with your intent, confidence, and a brief reasoning.`;
 
+// The acknowledgment-vs-confirmation block is the guardrail against confident
+// false-confirms (👍 / "D'accord" read as Confirm). The ablation prompt below
+// removes exactly this block so the eval can demonstrate the rule's effect.
+export const ACK_RULE = `IMPORTANT — Distinguish acknowledgment from confirmation:
+- Words like "Nice", "Cool", "Merci", "Thanks", "D'accord", a thumbs-up 👍 or a smiley after a
+  BOOKING notification are acknowledgments (classify as Other), NOT confirmations.
+- A confirmation is an explicit intent to confirm attendance: "Oui", "OK", "Confirm", "Je confirme",
+  "I'll be there".
+- When in doubt, classify as Other with LOW confidence rather than accidentally confirming.
+
+`;
+
+// Ablation prompt: identical, minus the acknowledgment rule. Used only by the
+// eval's --no-ack-rule mode; production and n8n always use the full SYSTEM_PROMPT.
+export const SYSTEM_PROMPT_NO_ACK = SYSTEM_PROMPT.replace(ACK_RULE, "");
+
 // Copied verbatim from ClassifyIntentTool.InputSchema (Vesk.Infrastructure).
 export const CLASSIFY_INTENT_SCHEMA = {
   type: "object",
@@ -110,11 +126,11 @@ export function resolveProvider(env = process.env) {
  * @param {ReturnType<typeof resolveProvider>} cfg provider config from resolveProvider()
  * @returns {Promise<{intent: string, confidence: number, reasoning: string}>}
  */
-export async function classify(message, cfg) {
+export async function classify(message, cfg, systemPrompt = SYSTEM_PROMPT) {
   const body = {
     temperature: 0,
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: systemPrompt },
       { role: "user", content: `Customer sent this SMS: "${message}"` },
     ],
     tools: [

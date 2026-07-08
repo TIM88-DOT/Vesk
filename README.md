@@ -108,14 +108,16 @@ same 0.85 / 0.75 thresholds across all three:
 | | What it is | Where |
 |---|---|---|
 | **Production** | The real C# agent: LLM classification behind deterministic consent/idempotency/threshold gates. | [`src/Vesk.Infrastructure/Agents/ReplyHandlingAgent.cs`](src/Vesk.Infrastructure/Agents/ReplyHandlingAgent.cs) |
-| **Eval set** | 40 bilingual test messages that measure *how the classifier fails* — separating "wrong but caught by the confidence gate" from "wrong **and** confident enough to auto-act." Runs with just an OpenAI key. | [**`evals/`**](evals/) |
+| **Eval set** | 40 bilingual test messages that measure *how the classifier fails* — separating "wrong but caught by the confidence gate" from "wrong **and** confident enough to auto-act." Runs with just an OpenAI or Azure key. | [**`evals/`**](evals/) |
 | **n8n replica** | The same pipeline rebuilt as a low-code n8n workflow, with an honest write-up of where visual tooling helps and where it gets awkward (non-atomic dedup, compound confidence logic, error handling). | [**`n8n/`**](n8n/) |
 
-**Why these two extras matter:** the eval set turns "how do LLMs fail?" into data — the standout
-finding is that the classifier will confidently read a casual "👍" or "D'accord" as a *confirmation*,
-which is exactly the failure the confidence gate exists to stop. The n8n port shows the same workflow
-solved in a completely different toolset, and names the trade-offs you make moving between them. Each
-has its own README with run instructions.
+**Why these two extras matter:** the eval set turns "how do LLMs fail?" into a real experiment. With
+the full prompt, the classifier scores 39/40 with **0 dangerous auto-actions**. Strip out one
+paragraph — the acknowledgment-vs-confirmation rule — and re-run, and a polite "D'accord" (0.90) or
+"Parfait merci" (0.85) flips straight to a confident **auto-confirm** of an appointment nobody
+confirmed (2 dangerous fails). That ablation is the whole thesis in one number: the LLM classifies,
+but a deterministic rule plus the confidence gate are what make it *safe*. The n8n port then shows the
+same workflow rebuilt in a different toolset, and names the trade-offs. Each folder has its own README.
 
 ---
 

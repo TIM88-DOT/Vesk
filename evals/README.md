@@ -4,7 +4,7 @@ An offline test set that measures **how the Vesk inbound-SMS intent classifier f
 how often it succeeds. It runs against the same prompt the production agent uses and scores every
 result the way production would *act* on it.
 
-> Runs with only an `OPENAI_API_KEY` — no database, no Azure, no running Vesk stack.
+> Runs with just an API key (OpenAI **or** Azure OpenAI) — no database, no running Vesk stack.
 
 ---
 
@@ -32,35 +32,45 @@ the 0.85 / 0.75 thresholds, I run this to see whether accuracy went up **and**, 
 whether the number of *dangerous* failures went up. Prompt changes that help the happy path often
 quietly make the confident-wrong cases worse; a single accuracy number hides that. This surfaces it.
 
-## One thing that broke
+## One thing that broke — and how I proved the fix holds
 
-**The classifier confidently mislabels casual acknowledgments as confirmations.**
+**A polite "D'accord" or "Parfait merci" would auto-confirm an appointment the customer never
+confirmed** — unless one specific rule keeps the model honest.
 
-After a booking notification, customers often reply "👍", "D'accord", "Merci", "Nice". Those are
-acknowledgments — the person is *not* confirming attendance, they're just being polite. But
-`Confirm` is the statistically obvious label, so the model returns `Confirm` with **high
-confidence**. And high confidence is exactly the trigger for the auto-action path — so the system
-would silently mark an appointment as confirmed that the customer never confirmed.
+After a booking notification, customers reply "👍", "D'accord", "Merci", "no problem". Those are
+acknowledgments — the person isn't confirming attendance, just being polite. But `Confirm` is the
+statistically obvious label, and **high confidence is exactly what triggers the auto-action path**,
+so the model can silently confirm an appointment nobody confirmed.
 
-From the sample run ([`results.md`](./results.md)):
+The current prompt handles this — on Azure `gpt-4o-mini` the classifier gets 39/40 with **0 dangerous
+fails** ([`results.md`](./results.md)); the one miss is a typo (`cofnirm`) it correctly escalates.
+That's not luck: it's one paragraph in the prompt, the *acknowledgment-vs-confirmation rule* (the
+`IMPORTANT — Distinguish acknowledgment from confirmation` block in
+[`ReplyHandlingAgent.cs`](../src/Vesk.Infrastructure/Agents/ReplyHandlingAgent.cs)).
 
-| Message | Expected | Got | Conf | Action production would take | Verdict |
-|---|---|---|---|---|---|
-| `👍` | Other | Confirm | 0.86 | **Auto-confirm** | DANGEROUS |
-| `D'accord` | Other | Confirm | 0.87 | **Auto-confirm** | DANGEROUS |
-| `👌` | Other | Confirm | 0.70 | Escalate to staff | safe fail |
+To prove that rule is load-bearing and not decoration, the eval has an **ablation mode**
+(`node run-evals.mjs --no-ack-rule`) that strips *just* that paragraph and re-runs the same 40 cases:
 
-The interesting part is the third row. `👌` is the *same class of mistake* — wrong intent — but the
-model was only 0.70 confident, so the **< 0.75 escalation gate caught it** and handed it to a human.
-Same error, completely different blast radius.
+| Prompt | Accuracy | **Dangerous fails** |
+|---|---|---|
+| Full (guardrail in place) — [`results.md`](./results.md) | 39/40 | **0** |
+| Ablation (rule removed) — [`results.ablation.md`](./results.ablation.md) | 35/40 | **2** |
 
-That reframed the bug for me. The dangerous failure isn't "the model is wrong" — models are
-sometimes wrong. The dangerous failure is **"the model is wrong *and* confident,"** because that's
-the only combination that reaches an irreversible action. So the fix wasn't only prompt-tuning; it
-was making the eval score *confidence-weighted* and adding the explicit
-acknowledgment-vs-confirmation rule to the prompt (see the `IMPORTANT — Distinguish acknowledgment
-from confirmation` block in [`ReplyHandlingAgent.cs`](../src/Vesk.Infrastructure/Agents/ReplyHandlingAgent.cs)),
-which exists *because* this eval kept flagging these rows.
+The two that flip straight to confident auto-confirms:
+
+| Message | With the rule | Without it |
+|---|---|---|
+| `D'accord` | Other ✓ | **Confirm @0.90 → Auto-confirm** |
+| `Parfait merci` | Other ✓ | **Confirm @0.85 → Auto-confirm** |
+
+(`👍` and `no problem` also flip to `Confirm`, but at 0.75–0.80 — wrong, yet caught below the 0.85
+auto-act line.)
+
+That's the real lesson. The dangerous failure isn't "the model is wrong" — models are sometimes
+wrong. It's **"the model is wrong *and* confident,"** because that's the only combination that reaches
+an irreversible action. Two things defend against it, and this eval measures both: a deterministic
+prompt rule that removes the trap, and the confidence gate that catches whatever slips through. Run
+the eval after any prompt change and the dangerous-fail count tells you immediately if you broke it.
 
 ---
 
@@ -109,18 +119,25 @@ Works with **either provider** — set one in `.env`:
   `AZURE_OPENAI_DEPLOYMENT` (+ optional `AZURE_OPENAI_API_VERSION`). This is the same provider Vesk
   uses in production (`AzureOpenAIClient`); if both are set, Azure wins.
 
-Node 18+ (uses built-in `fetch`, no dependencies to install). Output goes to the console and is
-written to [`results.md`](./results.md).
+To run the ablation described above (strips the acknowledgment rule → writes `results.ablation.md`):
 
-Without a provider configured, the script prints setup instructions and exits cleanly — the committed
-`results.md` is an **illustrative sample** so you can read the format without running anything. Live
-numbers vary by model and run.
+```bash
+node run-evals.mjs --no-ack-rule
+```
+
+Node 18+ (uses built-in `fetch`, no dependencies to install). Output goes to the console and to the
+results file.
+
+Without a provider configured, the script prints setup instructions and exits cleanly. The committed
+`results.md` / `results.ablation.md` are **real runs** against Azure `gpt-4o-mini`, so you can read the
+numbers without running anything; they'll vary slightly by model and run.
 
 ## Files
 
 | File | Purpose |
 |---|---|
 | `cases.jsonl` | 40 labelled test messages (FR/EN, clear + trap + adversarial) |
-| `classifier.mjs` | Standalone classifier: prompt derived from `ReplyHandlingAgent`, `classify_intent` schema copied from `ClassifyIntentTool` |
-| `run-evals.mjs` | Runner + confidence-weighted scoring; writes `results.md` |
-| `results.md` | Failure table + summary (regenerated on each run) |
+| `classifier.mjs` | Standalone classifier: prompt derived from `ReplyHandlingAgent`, `classify_intent` schema copied from `ClassifyIntentTool`; also exports the ablation prompt |
+| `run-evals.mjs` | Runner + confidence-weighted scoring; `--no-ack-rule` for the ablation |
+| `results.md` | Baseline run — full prompt (39/40, 0 dangerous) |
+| `results.ablation.md` | Ablation run — acknowledgment rule removed (35/40, 2 dangerous) |

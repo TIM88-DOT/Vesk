@@ -21,7 +21,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { classify, resolveProvider } from "./classifier.mjs";
+import { classify, resolveProvider, SYSTEM_PROMPT, SYSTEM_PROMPT_NO_ACK } from "./classifier.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -114,12 +114,19 @@ Then: node run-evals.mjs   (See results.md for a committed sample run.)
     process.exit(0);
   }
 
+  // Ablation mode: strip the acknowledgment-vs-confirmation rule to demonstrate
+  // its effect on dangerous (confident-wrong) failures.
+  const ablation = process.argv.includes("--no-ack-rule");
+  const systemPrompt = ablation ? SYSTEM_PROMPT_NO_ACK : SYSTEM_PROMPT;
+  const outFile = ablation ? "results.ablation.md" : "results.md";
+  const label = ablation ? `${provider.label} — NO acknowledgment rule (ablation)` : provider.label;
+
   const cases = loadCases();
-  console.log(`Running ${cases.length} cases against ${provider.label}...\n`);
+  console.log(`Running ${cases.length} cases against ${label}...\n`);
 
   const rows = await mapPool(cases, CONCURRENCY, async (c) => {
     try {
-      const { intent, confidence, reasoning } = await classify(c.message, provider);
+      const { intent, confidence, reasoning } = await classify(c.message, provider, systemPrompt);
       const action = simulateAction(intent, confidence);
       const verdict = verdictFor(c, intent, confidence);
       return { c, intent, confidence, reasoning, action, verdict };
@@ -165,8 +172,8 @@ Then: node run-evals.mjs   (See results.md for a committed sample run.)
   if (errors) console.log(`Errors:          ${errors}`);
   console.log("=".repeat(50));
 
-  writeResults(rows, { total, passes, dangerous, safeFails, loggedFails, errors, acc, model: provider.label });
-  console.log("\nWrote results.md");
+  writeResults(rows, { total, passes, dangerous, safeFails, loggedFails, errors, acc, model: label }, outFile);
+  console.log(`\nWrote ${outFile}`);
 }
 
 export function computeMetrics(rows) {
@@ -180,7 +187,7 @@ export function computeMetrics(rows) {
   return { total, passes, dangerous, safeFails, loggedFails, errors, acc };
 }
 
-export function writeResults(rows, m) {
+export function writeResults(rows, m, outFile = "results.md") {
   const esc = (s) => String(s).replace(/\|/g, "\\|").replace(/\n/g, " ");
   const line = (r) =>
     `| ${r.c.id} | \`${esc(r.c.message)}\` | ${r.c.lang} | ${r.c.expected} | ${r.intent} | ${r.confidence.toFixed(2)} | ${r.action} | ${r.verdict} |`;
@@ -219,7 +226,7 @@ ${failures.map(line).join("\n")}`}
 ${rows.map(line).join("\n")}
 `;
 
-  writeFileSync(join(__dirname, "results.md"), out);
+  writeFileSync(join(__dirname, outFile), out);
 }
 
 // Only run when invoked directly (node run-evals.mjs), not when imported.
