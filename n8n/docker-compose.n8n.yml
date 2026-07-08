@@ -1,0 +1,19 @@
+# Self-host n8n for the Vesk replica demo.
+#   docker compose -f docker-compose.n8n.yml up -d
+#   open http://localhost:5678  (set up the owner account on first run)
+# Then import vesk-inbound-sms.workflow.json from the UI.
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_PORT=5678
+      - N8N_HOST=localhost
+      - N8N_SECURE_COOKIE=false          # allow http on localhost
+      - GENERIC_TIMEZONE=America/Toronto  # Oakville / Eastern
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:

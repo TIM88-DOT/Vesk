@@ -1,0 +1,670 @@
+{
+  "name": "Vesk — Inbound SMS Reply Pipeline (n8n replica)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vesk-inbound-sms",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "n1",
+      "name": "Twilio Inbound Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -120,
+        400
+      ],
+      "webhookId": "vesk-inbound-sms"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Twilio posts form-encoded fields; the webhook node puts them under .body\nconst src = $input.first().json;\nconst body = src.body || src;\nconst smsSid = body.MessageSid || body.SmsSid || '';\nconst from = body.From || '';\nconst to = body.To || '';\nconst text = (body.Body || '').toString();\nconst normalized = text.trim();\n\n// Idempotency: dedup on Twilio MessageSid (mirrors the ProviderSmsSid unique key).\n// NOTE: workflow static data is best-effort and NOT atomic - see README comparison.\nconst store = $getWorkflowStaticData('global');\nstore.seenSids = store.seenSids || {};\nconst isDuplicate = Boolean(smsSid && store.seenSids[smsSid]);\nif (smsSid) store.seenSids[smsSid] = true;\n\n// Deterministic keyword gate (mirrors MessagingService StopKeywords/StartKeywords).\n// Legal opt-out must never depend on an LLM, so it is handled here, before classify.\nconst STOP = ['STOP','STOPALL','UNSUBSCRIBE','END','QUIT','ARRET','ARRETER'];\nconst START = ['START','UNSTOP','YES','OUI'];\nconst upper = normalized.toUpperCase();\nlet route = 'classify';\nif (STOP.includes(upper)) route = 'stop';\nelse if (START.includes(upper)) route = 'start';\n\nreturn [{ json: { smsSid, from, to, text, normalized, isDuplicate, route } }];"
+      },
+      "id": "n2",
+      "name": "Normalize & Dedup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        120,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "n3",
+              "leftValue": "={{ $json.isDuplicate }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "n4",
+      "name": "Duplicate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        360,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "n5",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "stop",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "STOP (opt-out)"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "n6",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "START (opt-in)"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "n7",
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "classify",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Classify"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "n8",
+      "name": "Keyword Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        620,
+        480
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n9",
+      "name": "Record Opt-out (mock)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n10",
+      "name": "Record Opt-in (mock)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $input.first().json;\nconst SYSTEM_PROMPT = \"You are an SMS intent classifier for Vesk, a SaaS platform for appointment-based\\nbusinesses in Canada. Customers reply to reminder or booking SMS messages and you\\nmust determine their intent. Customers reply in either French or English.\\n\\nClassify the message into exactly one intent:\\n- Confirm: confirming attendance (Oui, OK, Je confirme, Yes, Confirmed, I'll be there)\\n- Cancel: wants to cancel (Annuler, Cancel, I can't make it, Je ne peux pas venir)\\n- Reschedule: wants a different time (Reporter, Changer l'heure, move it to Friday)\\n- Question: asking something (C'est a quelle heure?, What time?, How much?)\\n- Other: anything else\\n\\nConfidence guidelines (0.0-1.0):\\n- 0.90-1.0 very clear; 0.75-0.89 likely but ambiguous;\\n- 0.50-0.74 uncertain (should be reviewed by staff, not auto-actioned);\\n- below 0.50 cannot determine.\\n\\nIMPORTANT - acknowledgment vs confirmation:\\n- Nice, Cool, Merci, Thanks, D'accord, a thumbs-up or smiley after a booking are\\n  acknowledgments -> classify as Other, NOT Confirm.\\n- A confirmation is an explicit intent to attend (Oui, OK, Confirm, Je confirme).\\n- When in doubt, classify as Other with LOW confidence rather than confirming.\\n\\nAlways call classify_intent with intent, confidence, and a brief reasoning.\"\n;\nconst openaiBody = {\n  model: 'gpt-4o-mini',\n  temperature: 0,\n  messages: [\n    { role: 'system', content: SYSTEM_PROMPT },\n    { role: 'user', content: 'Customer sent this SMS: \"' + ctx.text + '\"' }\n  ],\n  tools: [{\n    type: 'function',\n    function: {\n      name: 'classify_intent',\n      description: 'Records the intent classification result for an inbound SMS.',\n      parameters: {\n        type: 'object',\n        properties: {\n          intent: { type: 'string', enum: ['Confirm','Cancel','Reschedule','Question','Other'] },\n          confidence: { type: 'number', minimum: 0, maximum: 1 },\n          reasoning: { type: 'string' }\n        },\n        required: ['intent','confidence','reasoning']\n      }\n    }\n  }],\n  tool_choice: { type: 'function', function: { name: 'classify_intent' } }\n};\nreturn [{ json: Object.assign({}, ctx, { openaiBody }) }];"
+      },
+      "id": "n11",
+      "name": "Build OpenAI Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.openaiBody }}",
+        "options": {}
+      },
+      "id": "n12",
+      "name": "OpenAI Classify",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Deterministic threshold policy - mirrors ReplyHandlingAgent action rules.\n// The LLM only classifies; the 0.85 / 0.75 gates that trigger real actions live here.\nconst res = $input.first().json;\nconst msg = (res.choices && res.choices[0] && res.choices[0].message) || {};\nconst call = (msg.tool_calls || [])[0];\nlet intent = 'Other', confidence = 0, reasoning = 'no tool call returned';\nif (call) {\n  const args = JSON.parse(call.function.arguments);\n  intent = args.intent; confidence = Number(args.confidence); reasoning = args.reasoning || '';\n}\nconst ACTIONABLE = ['Confirm','Cancel','Reschedule'];\nlet action = 'log';\nif (ACTIONABLE.includes(intent) && confidence >= 0.85) action = 'auto-' + intent.toLowerCase();\nelse if (confidence < 0.75) action = 'escalate';\nreturn [{ json: { intent, confidence, reasoning, action } }];"
+      },
+      "id": "n13",
+      "name": "Apply Threshold Policy",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "n14",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "auto-confirm",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Auto-confirm"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "n15",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "auto-cancel",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Auto-cancel"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "n16",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "auto-reschedule",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Auto-reschedule"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "n17",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "escalate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Escalate <0.75"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "n18",
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "log",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Log/Review"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "n19",
+      "name": "Action Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1600,
+        620
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n20",
+      "name": "confirm_appointment (mock)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        380
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n21",
+      "name": "cancel_appointment (mock)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        500
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n22",
+      "name": "send_reschedule_link (mock)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        620
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n23",
+      "name": "Escalate to Staff (mock)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        740
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "n24",
+      "name": "Log for Review (mock)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "n25",
+      "name": "Respond 200 to Twilio",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2140,
+        620
+      ]
+    }
+  ],
+  "connections": {
+    "Twilio Inbound Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Dedup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize & Dedup": {
+      "main": [
+        [
+          {
+            "node": "Duplicate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate?": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 to Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Keyword Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keyword Router": {
+      "main": [
+        [
+          {
+            "node": "Record Opt-out (mock)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Opt-in (mock)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build OpenAI Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Opt-out (mock)": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 to Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Opt-in (mock)": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 to Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build OpenAI Request": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Classify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Classify": {
+      "main": [
+        [
+          {
+            "node": "Apply Threshold Policy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Threshold Policy": {
+      "main": [
+        [
+          {
+            "node": "Action Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Action Router": {
+      "main": [
+        [
+          {
+            "node": "confirm_appointment (mock)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "cancel_appointment (mock)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "send_reschedule_link (mock)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Escalate to Staff (mock)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log for Review (mock)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "confirm_appointment (mock)": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 to Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancel_appointment (mock)": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 to Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_reschedule_link (mock)": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 to Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalate to Staff (mock)": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 to Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log for Review (mock)": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 to Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "vesk-showcase"
+  },
+  "tags": []
+}
