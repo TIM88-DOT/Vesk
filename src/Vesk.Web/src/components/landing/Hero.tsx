@@ -26,9 +26,17 @@ export default function Hero() {
     return () => timers.forEach(clearTimeout);
   }, []);
 
+  /* Latches, not the raw stage. Depending on `stage` re-ran each animation on every later
+   * stage change — the reply retyped itself four times, the trace restarted after finishing,
+   * and the confidence bar reset to 0. A boolean flips false→true exactly once, so each
+   * effect fires once and is left alone. */
+  const startTyping = stage >= 2;
+  const startTools = stage >= 3;
+  const startCounter = stage >= 4;
+
   /* Walk the tool trace once stage 3 opens */
   useEffect(() => {
-    if (stage < 3) return;
+    if (!startTools) return;
     let n = 0;
     const id = setInterval(() => {
       n++;
@@ -36,11 +44,11 @@ export default function Hero() {
       if (n >= TOOL_COUNT) clearInterval(id);
     }, 450);
     return () => clearInterval(id);
-  }, [stage]);
+  }, [startTools]);
 
   /* Typing effect for the inbound reply */
   useEffect(() => {
-    if (stage < 2) return;
+    if (!startTyping) return;
     let i = 0;
     const id = setInterval(() => {
       i++;
@@ -48,11 +56,11 @@ export default function Hero() {
       if (i >= REPLY_TEXT.length) clearInterval(id);
     }, 55);
     return () => clearInterval(id);
-  }, [stage]);
+  }, [startTyping]);
 
   /* Confidence counter */
   useEffect(() => {
-    if (stage < 4) return;
+    if (!startCounter) return;
     let val = 0;
     const id = setInterval(() => {
       val += 2;
@@ -63,7 +71,7 @@ export default function Hero() {
       setConfidence(val);
     }, 14);
     return () => clearInterval(id);
-  }, [stage]);
+  }, [startCounter]);
 
   return (
     <section className="relative min-h-[94vh] flex items-center px-6 md:px-8 pt-28 pb-20 overflow-hidden">
