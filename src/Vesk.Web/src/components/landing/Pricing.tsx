@@ -67,14 +67,14 @@ function PlanCard({
 }: PlanProps) {
   return (
     <div
-      className={`relative rounded-2xl p-7 flex flex-col transition-all duration-200 ${
+      className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 ${
         highlighted
-          ? "bg-[#0d0d0d] text-white border border-[#0d0d0d]"
-          : "bg-white border border-[rgba(0,0,0,0.05)] hover:border-[rgba(0,0,0,0.08)] shadow-[rgba(0,0,0,0.03)_0px_2px_4px]"
+          ? "bg-[#0d0d0d] text-white border border-white/[0.06] shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
+          : "bg-white border border-[rgba(0,0,0,0.06)] shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:border-[rgba(0,0,0,0.1)]"
       }`}
     >
       {highlighted && (
-        <span className="absolute -top-2.5 left-6 px-3 py-0.5 bg-brand text-[#0d0d0d] text-[11px] font-semibold rounded-full uppercase tracking-[0.6px]">
+        <span className="absolute -top-2.5 left-6 px-3 py-0.5 bg-brand text-[#0d0d0d] text-[10px] font-semibold rounded-full uppercase tracking-[0.8px]">
           Popular
         </span>
       )}
@@ -89,7 +89,7 @@ function PlanCard({
         </h3>
         <p
           className={`text-[13px] mb-5 ${
-            highlighted ? "text-white/50" : "text-[#666666]"
+            highlighted ? "text-white/40" : "text-[#aaaaaa]"
           }`}
         >
           {description}
@@ -99,14 +99,14 @@ function PlanCard({
             className={`text-[2.5rem] font-semibold leading-none ${
               highlighted ? "text-white" : "text-[#0d0d0d]"
             }`}
-            style={{ letterSpacing: "-0.8px" }}
+            style={{ letterSpacing: "-1px" }}
           >
             {price}
           </span>
           {period && (
             <span
               className={`text-[14px] ${
-                highlighted ? "text-white/40" : "text-[#888888]"
+                highlighted ? "text-white/30" : "text-[#aaaaaa]"
               }`}
             >
               {period}
@@ -117,7 +117,7 @@ function PlanCard({
 
       <div
         className={`h-px mb-6 ${
-          highlighted ? "bg-white/10" : "bg-[rgba(0,0,0,0.05)]"
+          highlighted ? "bg-white/[0.06]" : "bg-[rgba(0,0,0,0.05)]"
         }`}
       />
 
@@ -125,14 +125,12 @@ function PlanCard({
         {features.map((feature) => (
           <li key={feature} className="flex items-center gap-2.5">
             <Check
-              className={`w-4 h-4 shrink-0 ${
-                highlighted ? "text-brand" : "text-brand"
-              }`}
+              className="w-4 h-4 shrink-0 text-brand"
               strokeWidth={2.5}
             />
             <span
               className={`text-[14px] ${
-                highlighted ? "text-white/70" : "text-[#666666]"
+                highlighted ? "text-white/60" : "text-[#777777]"
               }`}
             >
               {feature}
@@ -143,10 +141,10 @@ function PlanCard({
 
       <a
         href="#contact"
-        className={`block text-center py-2.5 rounded-full text-[15px] font-medium transition-all ${
+        className={`block text-center py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 ${
           highlighted
-            ? "bg-white text-[#0d0d0d] hover:opacity-90"
-            : "text-[#0d0d0d] border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.15)]"
+            ? "bg-white text-[#0d0d0d] hover:bg-white/90"
+            : "text-[#0d0d0d] border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.15)] hover:bg-[#fafafa]"
         }`}
       >
         {cta}
@@ -162,21 +160,21 @@ export default function Pricing() {
     <section
       id="pricing"
       ref={ref}
-      className={`py-24 px-6 md:px-8 fade-in-section ${visible ? "is-visible" : ""}`}
+      className={`py-28 px-6 md:px-8 fade-in-section ${visible ? "is-visible" : ""}`}
     >
       <div className="max-w-[960px] mx-auto">
         <div className="text-center mb-14">
-          <p className="font-mono text-[12px] font-medium text-brand tracking-[0.6px] uppercase mb-4">
+          <p className="font-mono text-[10px] font-medium text-[#0fa76e] tracking-[1.2px] uppercase mb-4">
             Pricing
           </p>
           <h2
-            className="text-[clamp(1.8rem,3.5vw,2.5rem)] font-semibold text-[#0d0d0d] leading-[1.1] mb-3"
-            style={{ letterSpacing: "-0.8px" }}
+            className="text-[clamp(1.8rem,3.5vw,2.8rem)] font-semibold text-[#0d0d0d] leading-[1.08] mb-3"
+            style={{ letterSpacing: "-1px" }}
           >
             Simple, transparent pricing.
           </h2>
-          <p className="text-[16px] text-[#666666]">
-            14-day free trial &middot; No credit card required
+          <p className="text-[15px] text-[#aaaaaa]">
+            14-day free trial · No credit card required
           </p>
         </div>
 
@@ -187,7 +185,7 @@ export default function Pricing() {
             ))}
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="px-6 py-3 bg-[#0d0d0d] text-white text-[15px] font-medium rounded-full shadow-lg">
+            <span className="px-6 py-3 bg-[#0d0d0d] text-white text-[14px] font-medium rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
               Coming soon
             </span>
           </div>

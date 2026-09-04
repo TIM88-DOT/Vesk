@@ -1,0 +1,17 @@
+# Vercel runs `npm install` itself — never upload local dependencies.
+# Without this the CLI walks ~200MB from a OneDrive-synced folder and stalls.
+node_modules
+
+# Build output is produced on Vercel by `npm run build`.
+dist
+dist-ssr
+
+# Local Vercel state and secrets
+.vercel
+.env
+.env.*
+
+# Noise
+*.log
+*.local
+.DS_Store

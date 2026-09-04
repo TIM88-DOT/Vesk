@@ -1,113 +1,150 @@
 import { useState, useEffect } from "react";
 
+const navLinks = ["Features", "How It Works", "Pricing"] as const;
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/80 backdrop-blur-xl border-b border-[rgba(0,0,0,0.05)]"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="max-w-[1200px] mx-auto px-6 md:px-8 h-[60px] flex items-center justify-between">
-        {/* Logo */}
-        <a href="#" className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-brand" />
-          <span className="text-[17px] font-semibold text-[#0d0d0d] tracking-[-0.2px]">
-            Vesk
-          </span>
-        </a>
-
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-8">
-          {["Features", "How It Works", "Pricing"].map((label) => (
-            <a
-              key={label}
-              href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
-              className="text-[15px] font-medium text-[#0d0d0d] hover:text-brand transition-colors"
-            >
-              {label}
-            </a>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div className="hidden md:flex items-center gap-4">
-          <a
-            href="/login"
-            className="text-[15px] font-medium text-[#0d0d0d] hover:text-brand transition-colors"
-          >
-            Log in
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled
+            ? "bg-white/70 backdrop-blur-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-b border-black/[0.04]"
+            : "bg-transparent"
+        }`}
+      >
+        <div className="max-w-[1200px] mx-auto px-6 md:px-8 h-[64px] flex items-center justify-between">
+          {/* Logo */}
+          <a href="#" className="flex items-center gap-2.5 group">
+            <div className="w-7 h-7 rounded-lg bg-brand flex items-center justify-center shadow-[0_0_0_1px_rgba(0,0,0,0.04)]">
+              <span className="text-[11px] font-bold text-[#0d0d0d] leading-none">V</span>
+            </div>
+            <span className="text-[17px] font-semibold text-[#0d0d0d] tracking-[-0.4px]">
+              Vesk
+            </span>
           </a>
-          <a
-            href="/register"
-            className="text-[15px] font-medium text-white bg-[#0d0d0d] hover:opacity-90 px-6 py-2 rounded-full shadow-[rgba(0,0,0,0.06)_0px_1px_2px] transition-opacity"
-          >
-            Get Started
-          </a>
-        </div>
 
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden p-2 rounded-lg"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          <div className="w-5 flex flex-col gap-[5px]">
-            <span
-              className={`block h-[1.5px] bg-[#0d0d0d] transition-all duration-300 ${
-                mobileOpen ? "rotate-45 translate-y-[7px]" : ""
-              }`}
-            />
-            <span
-              className={`block h-[1.5px] bg-[#0d0d0d] transition-all duration-300 ${
-                mobileOpen ? "opacity-0" : ""
-              }`}
-            />
-            <span
-              className={`block h-[1.5px] bg-[#0d0d0d] transition-all duration-300 ${
-                mobileOpen ? "-rotate-45 -translate-y-[7px]" : ""
-              }`}
-            />
+          {/* Desktop nav links */}
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map((label) => (
+              <a
+                key={label}
+                href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
+                className="px-4 py-2 text-[14px] text-[#666666] hover:text-[#0d0d0d] rounded-lg hover:bg-black/[0.03] transition-all duration-200"
+              >
+                {label}
+              </a>
+            ))}
           </div>
-        </button>
-      </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-[rgba(0,0,0,0.05)] px-6 py-6 flex flex-col gap-4">
-          {["Features", "How It Works", "Pricing"].map((label) => (
+          {/* Desktop CTA */}
+          <div className="hidden md:flex items-center gap-3">
             <a
-              key={label}
-              href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
-              className="text-[15px] font-medium text-[#0d0d0d]"
-              onClick={() => setMobileOpen(false)}
+              href="/login"
+              className="px-4 py-2 text-[14px] text-[#666666] hover:text-[#0d0d0d] transition-colors"
             >
-              {label}
-            </a>
-          ))}
-          <div className="flex gap-4 pt-4 border-t border-[rgba(0,0,0,0.05)]">
-            <a href="/login" className="text-[15px] font-medium text-[#666666]">
               Log in
             </a>
             <a
               href="/register"
-              className="text-[15px] font-medium text-white bg-[#0d0d0d] px-6 py-2 rounded-full"
+              className="px-5 py-2 text-[14px] font-medium text-white bg-[#0d0d0d] rounded-lg hover:bg-[#1a1a1a] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
             >
               Get Started
             </a>
           </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-black/[0.03] transition-colors"
+            onClick={() => setMobileOpen((prev) => !prev)}
+            aria-label="Toggle menu"
+          >
+            <div className="w-[18px] flex flex-col gap-[5px]">
+              <span
+                className={`block h-[1.5px] bg-[#0d0d0d] rounded-full transition-all duration-300 origin-center ${
+                  mobileOpen ? "rotate-45 translate-y-[6.5px]" : ""
+                }`}
+              />
+              <span
+                className={`block h-[1.5px] bg-[#0d0d0d] rounded-full transition-all duration-300 ${
+                  mobileOpen ? "opacity-0 scale-x-0" : ""
+                }`}
+              />
+              <span
+                className={`block h-[1.5px] bg-[#0d0d0d] rounded-full transition-all duration-300 origin-center ${
+                  mobileOpen ? "-rotate-45 -translate-y-[6.5px]" : ""
+                }`}
+              />
+            </div>
+          </button>
         </div>
-      )}
-    </nav>
+      </nav>
+
+      {/* Mobile overlay menu */}
+      <div
+        className={`fixed inset-0 z-40 bg-white transition-all duration-500 md:hidden ${
+          mobileOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="flex flex-col justify-between h-full pt-24 pb-10 px-8">
+          <div className="space-y-1">
+            {navLinks.map((label, i) => (
+              <a
+                key={label}
+                href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
+                className="block text-[28px] font-semibold text-[#0d0d0d] py-3 transition-all duration-500"
+                style={{
+                  letterSpacing: "-0.5px",
+                  opacity: mobileOpen ? 1 : 0,
+                  transform: mobileOpen ? "translateY(0)" : "translateY(16px)",
+                  transitionDelay: `${100 + i * 60}ms`,
+                }}
+                onClick={() => setMobileOpen(false)}
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+
+          <div
+            className="space-y-4 transition-all duration-500"
+            style={{
+              opacity: mobileOpen ? 1 : 0,
+              transform: mobileOpen ? "translateY(0)" : "translateY(16px)",
+              transitionDelay: "300ms",
+            }}
+          >
+            <a
+              href="/register"
+              className="block text-center py-3.5 text-[16px] font-medium text-white bg-[#0d0d0d] rounded-xl"
+            >
+              Get Started
+            </a>
+            <a
+              href="/login"
+              className="block text-center py-3.5 text-[16px] text-[#666666]"
+            >
+              Log in
+            </a>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

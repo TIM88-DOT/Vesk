@@ -1,35 +1,48 @@
-import { useFadeIn } from "../../hooks/useFadeIn";
-
-const businesses = [
-  "Belleza Salon",
-  "Riverside Clinic",
-  "Spa Jasmin",
-  "North Barber Co.",
-  "Centre Dentaire",
-  "Studio Beauté",
+/**
+ * Tech-stack strip. Replaces the previous "trusted by" customer marquee — Vesk is pre-launch,
+ * so there are no customers to name. What IS verifiable is what it's built on.
+ */
+const stack = [
+  ".NET 8",
+  "ASP.NET Core",
+  "Azure OpenAI",
+  "Azure Service Bus",
+  "PostgreSQL",
+  "EF Core",
+  "MediatR",
+  "Twilio",
+  "SignalR",
+  "React 19",
+  "TypeScript",
+  "Tailwind CSS",
 ];
 
 export default function SocialProof() {
-  const { ref, visible } = useFadeIn();
+  /* Duplicate for seamless infinite scroll */
+  const items = [...stack, ...stack];
 
   return (
-    <section
-      ref={ref}
-      className={`py-16 border-y border-[rgba(0,0,0,0.05)] fade-in-section ${visible ? "is-visible" : ""}`}
-    >
-      <div className="max-w-[1200px] mx-auto px-6 md:px-8">
-        <p className="font-mono text-[12px] font-medium text-[#888888] tracking-[0.6px] uppercase text-center mb-8">
-          Loved by your favorite businesses
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-          {businesses.map((name, i) => (
-            <span key={name} className="flex items-center gap-4">
-              <span className="text-[15px] font-medium text-[#888888] select-none">
+    <section className="py-14 border-y border-[rgba(0,0,0,0.05)] bg-[#fafafa] overflow-hidden">
+      <p className="font-mono text-[10px] font-medium text-[#aaaaaa] tracking-[1px] uppercase text-center mb-8">
+        Built with
+      </p>
+
+      <div className="relative">
+        {/* Edge fades */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#fafafa] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#fafafa] to-transparent z-10 pointer-events-none" />
+
+        {/* Marquee track */}
+        <div
+          className="flex items-center gap-10 w-max"
+          style={{ animation: "marquee 40s linear infinite" }}
+        >
+          {items.map((name, i) => (
+            <span key={`${name}-${i}`} className="flex items-center gap-10">
+              <span className="text-[15px] font-medium text-[#999999] whitespace-nowrap select-none tracking-[-0.1px]">
                 {name}
               </span>
-              {i < businesses.length - 1 && (
-                <span className="hidden sm:block w-1 h-1 rounded-full bg-[rgba(0,0,0,0.1)]" />
-              )}
+              <span className="w-1 h-1 rounded-full bg-[rgba(0,0,0,0.08)] shrink-0" />
             </span>
           ))}
         </div>
