@@ -7,7 +7,11 @@ import ErrorBoundary from "./components/app/ErrorBoundary";
 import ProtectedRoute from "./components/app/ProtectedRoute";
 import AppLayout from "./components/app/AppLayout";
 
-const LandingPage = lazy(() => import("./pages/LandingPage"));
+/* Eagerly bundled: it is the "/" route every first-time visitor lands on, so code-splitting it
+ * only bought a second round trip before anything painted — and left crawlers that don't wait for
+ * lazy chunks with an empty <div id="root">. Every other route stays lazy. */
+import LandingPage from "./pages/LandingPage";
+
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const DashboardPage = lazy(() => import("./pages/app/DashboardPage"));

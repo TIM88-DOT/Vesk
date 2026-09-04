@@ -4,15 +4,171 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vesk — Appointments on Autopilot</title>
-    <meta name="description" content="AI-powered reminders, instant replies, and review recovery for appointment-based businesses." />
+
+    <title>Vesk — Bilingual SMS Reminders &amp; Reply AI for Salons, Clinics &amp; Spas</title>
+    <meta
+      name="description"
+      content="Bilingual (FR/EN) SMS appointment reminders with a confidence-gated AI reply agent for salons, clinics, spas and barbershops. Auto-confirms above 0.85, escalates to staff below 0.75. GDPR consent trail, immutable audit log, per-tenant isolation. Twilio SMS, CSV import, booking webhooks and public booking pages."
+    />
+    <link rel="canonical" href="https://vesk-tim88dots-projects.vercel.app/" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Vesk" />
+    <meta property="og:url" content="https://vesk-tim88dots-projects.vercel.app/" />
+    <meta property="og:title" content="Vesk — Bilingual SMS Reminders &amp; Reply AI for Appointment Businesses" />
+    <meta
+      property="og:description"
+      content="FR/EN SMS reminders, a confidence-gated AI reply agent that auto-confirms or escalates, and automatic review recovery. Consent, business-hours and cooldown gates enforced in code — the model never acts alone."
+    />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Vesk — Bilingual SMS Reminders &amp; Reply AI" />
+    <meta
+      name="twitter:description"
+      content="FR/EN SMS appointment reminders with a confidence-gated AI reply agent. GDPR consent trail, audit log, per-tenant isolation."
+    />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!--
+      Structured data. The page is a client-rendered SPA, so crawlers that do not execute JS
+      previously received only the title and a bare <div id="root">. Everything asserted below is
+      implemented in the repo — no ratings or customer counts, because there are none yet.
+    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Vesk",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Appointment scheduling and customer messaging",
+        "operatingSystem": "Web",
+        "url": "https://vesk-tim88dots-projects.vercel.app/",
+        "description": "Communication platform for appointment-based businesses. Sends bilingual (French/English) SMS appointment reminders, classifies inbound replies with an AI agent, and auto-confirms, cancels or reschedules when confidence is high enough — escalating to staff when it is not.",
+        "inLanguage": ["en", "fr"],
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Salons, clinics, spas, barbershops, dental practices and studios"
+        },
+        "featureList": [
+          "Bilingual French and English SMS appointment reminders",
+          "AI inbound reply classification with confidence scoring",
+          "Automatic appointment confirmation, cancellation and reschedule links",
+          "Escalation to staff when classifier confidence is low",
+          "Automated review recovery with Google and Facebook links",
+          "30-day review request cooldown enforced outside the model",
+          "Consent gate checked before every outbound message",
+          "Business hours and quiet hours enforcement",
+          "Public booking pages with per-tenant URL slugs",
+          "Appointment ingestion via webhook and CSV import",
+          "Customer history and no-show risk scoring",
+          "Real-time dashboard with delivery rates and agent run logs",
+          "Message templates with per-language variants",
+          "GDPR consent tracking and one-click PII anonymization",
+          "Immutable audit log of appointment status changes",
+          "Per-tenant data isolation verified in continuous integration",
+          "Idempotent webhook and SMS delivery handling"
+        ],
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Starter",
+            "price": "29",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/PreOrder",
+            "description": "200 SMS per month, 1 staff user, smart reminders, appointment management."
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro",
+            "price": "79",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/PreOrder",
+            "description": "1,000 SMS per month, 5 staff users, reply AI with auto-confirm, review recovery, full analytics, bilingual templates."
+          },
+          {
+            "@type": "Offer",
+            "name": "Enterprise",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/PreOrder",
+            "description": "Unlimited SMS and users, API access and webhooks, custom integrations, dedicated account manager."
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+
+    <!--
+      Static fallback for crawlers and clients without JavaScript. Mirrors the rendered page so the
+      product is legible without executing the bundle.
+    -->
+    <noscript>
+      <main>
+        <h1>Vesk — bilingual SMS reminders and reply AI for appointment businesses</h1>
+        <p>
+          Vesk sends French and English appointment reminders over SMS, reads what customers
+          text back, and acts on it — confirming, cancelling or sending a reschedule link when it
+          is confident, and handing the conversation to staff when it is not. Built for salons,
+          clinics, spas, barbershops, dental practices and studios.
+        </p>
+
+        <h2>How the AI is governed</h2>
+        <p>
+          The model classifies intent; it never holds the authority to act on one. Consent, the
+          30-day review cooldown and business-hours checks are enforced in application code before
+          any message is sent, and appointment status transitions are validated by the domain
+          layer. Classification runs against a committed 40-case bilingual evaluation set, where
+          failures are graded by blast radius rather than raw accuracy.
+        </p>
+
+        <h2>Features</h2>
+        <ul>
+          <li>Bilingual (FR/EN) SMS appointment reminders, timed per customer</li>
+          <li>AI reply classification with confidence scoring and staff escalation</li>
+          <li>Automatic confirmation, cancellation and reschedule links</li>
+          <li>Review recovery with Google and Facebook links, on a 30-day cooldown</li>
+          <li>Public booking pages with per-business URL slugs</li>
+          <li>Real-time dashboard: delivery rates, no-show trends, agent run logs</li>
+          <li>Message templates with per-language variants</li>
+        </ul>
+
+        <h2>Integrations</h2>
+        <ul>
+          <li>Twilio for SMS delivery and inbound webhooks</li>
+          <li>Appointment ingestion from an existing booking system via webhook</li>
+          <li>CSV import for migrating an existing customer list</li>
+          <li>Google and Facebook review destinations</li>
+          <li>Public booking API for unauthenticated bookings</li>
+          <li>Azure OpenAI as the classification model provider</li>
+        </ul>
+
+        <h2>Data protection and tenancy</h2>
+        <ul>
+          <li>GDPR consent tracking with recorded consent source</li>
+          <li>One-click PII anonymization; records are soft-deleted, never hard-deleted</li>
+          <li>Immutable audit log of appointment status changes</li>
+          <li>Per-tenant data isolation asserted on every continuous integration run</li>
+          <li>Idempotent inbound SMS and webhook handling</li>
+        </ul>
+
+        <h2>Pricing</h2>
+        <p>
+          Starter $29/month — 200 SMS, 1 staff user. Pro $79/month — 1,000 SMS, 5 staff users,
+          reply AI, review recovery and analytics. Enterprise — custom, with API access, webhooks
+          and unlimited users. Billing is not yet live; Vesk is pre-launch and has no customers
+          yet, so this page carries no customer testimonials or usage claims.
+        </p>
+      </main>
+    </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
