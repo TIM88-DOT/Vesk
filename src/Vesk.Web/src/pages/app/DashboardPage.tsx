@@ -70,7 +70,7 @@ export default function DashboardPage() {
     {
       label: "At-risk",
       value: stats.data ? String(atRiskCount) : "...",
-      sub: atRiskCount > 0 ? "Unconfirmed — call the customer" : "No unconfirmed appointments",
+      sub: atRiskCount > 0 ? "Unconfirmed, call the customer" : "No unconfirmed appointments",
       icon: AlertTriangle,
       emphasis: atRiskCount > 0 ? "danger" : undefined,
       href: "/app/appointments?status=AtRisk",

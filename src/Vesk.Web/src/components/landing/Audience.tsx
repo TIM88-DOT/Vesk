@@ -2,8 +2,8 @@ import { useFadeIn } from "../../hooks/useFadeIn";
 
 /**
  * Sits between the hero and the features grid. Its job is orientation: who this is for and why
- * the problem matters. Deliberately makes no claim about traction or measured outcomes — the
- * numbers live in the Stats and Evals sections, where they are backed by the committed eval set.
+ * the problem matters. Deliberately makes no claim about traction or measured outcomes. Those
+ * numbers live in the Stats and Evals sections, where the committed eval set backs them.
  */
 const audiences = [
   "Salons",
@@ -39,7 +39,7 @@ export default function Audience() {
         </h2>
 
         <p className="text-[16px] text-[#777777] leading-[1.65] max-w-lg mx-auto mb-10">
-          When your day is booked in slots, every gap costs you twice — the
+          When your day is booked in slots, every gap costs you twice: the
           appointment you lost, and the one you turned away to hold it.
         </p>
 

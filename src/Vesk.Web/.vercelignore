@@ -1,4 +1,4 @@
-# Vercel runs `npm install` itself — never upload local dependencies.
+# Vercel runs `npm install` itself, never upload local dependencies.
 # Without this the CLI walks ~200MB from a OneDrive-synced folder and stalls.
 node_modules
 

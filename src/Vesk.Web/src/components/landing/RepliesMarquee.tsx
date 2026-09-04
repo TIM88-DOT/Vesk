@@ -1,6 +1,6 @@
 /**
  * Thin scrolling band under the hero. Every string here is a real inbound-reply case from the
- * committed eval set (`evals/cases.jsonl` — see `evals/results.md` for the per-case results),
+ * committed eval set (`evals/cases.jsonl`, see `evals/results.md` for the per-case results),
  * so the band is illustrative without making a claim the repo can't back.
  */
 const replies = [
@@ -37,7 +37,7 @@ export default function RepliesMarquee() {
         <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-[#fafafa] to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#fafafa] to-transparent z-10 pointer-events-none" />
 
-        {/* Track — pauses on hover, disabled for reduced-motion (see index.css) */}
+        {/* Track: pauses on hover, disabled for reduced-motion (see index.css) */}
         <div className="marquee-track flex items-center gap-3 w-max">
           {items.map((text, i) => (
             <span

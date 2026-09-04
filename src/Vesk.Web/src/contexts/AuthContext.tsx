@@ -9,7 +9,7 @@ import { setAccessToken, refreshSession } from "../lib/api";
 import { AuthContext, type User } from "../hooks/useAuth";
 
 // We cache only the (non-sensitive) user profile in sessionStorage so the app knows *who* is
-// signed in instantly on a hard reload — the routing decision and app shell render without waiting
+// signed in instantly on a hard reload, the routing decision and app shell render without waiting
 // on the async /auth/refresh round-trip. The JWT itself is NEVER persisted (memory only, per
 // CLAUDE.md); a fresh access token is still obtained via the httpOnly refresh cookie on bootstrap.
 const USER_CACHE_KEY = "vesk.user";
@@ -28,7 +28,7 @@ function writeCachedUser(user: User | null) {
     if (user) sessionStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
     else sessionStorage.removeItem(USER_CACHE_KEY);
   } catch {
-    // sessionStorage may be unavailable (private mode quota) — non-fatal.
+    // sessionStorage may be unavailable (private mode quota), non-fatal.
   }
 }
 

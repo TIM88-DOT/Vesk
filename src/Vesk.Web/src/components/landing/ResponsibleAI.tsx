@@ -6,7 +6,7 @@ import { useFadeIn } from "../../hooks/useFadeIn";
  * Maps Vesk's safety architecture onto Microsoft's four-stage responsible-generative-AI process
  * (Map → Measure → Mitigate → Manage), which itself aligns to the NIST AI Risk Management Framework.
  *
- * Items marked `planned: true` are NOT shipped yet — the confidence threshold currently lives in the
+ * Items marked `planned: true` are NOT shipped yet, the confidence threshold currently lives in the
  * ReplyHandlingAgent system prompt rather than a deterministic C# gate. Kept explicit so the page
  * doesn't claim an enforcement property the code doesn't have.
  */
@@ -70,7 +70,7 @@ const stages: Stage[] = [
       { text: "Cross-tenant isolation asserted on every CI run" },
       { text: "Idempotency keys stop a retried webhook double-sending" },
       { text: "GDPR: consent trail, PII anonymization, audit log" },
-      { text: "Soft delete only — nothing is ever hard-deleted" },
+      { text: "Soft delete only: nothing is ever hard-deleted" },
     ],
   },
 ];
@@ -99,7 +99,7 @@ export default function ResponsibleAI() {
           <p className="text-[16px] text-[#777777] leading-[1.65] max-w-xl mx-auto">
             An LLM reads intent. It never holds the authority to act on one.
             Every irreversible step sits behind a check the model cannot talk
-            its way through — structured on Microsoft&rsquo;s four-stage
+            its way through. Structured on Microsoft&rsquo;s four-stage
             responsible-AI process.
           </p>
         </div>

@@ -62,8 +62,8 @@ export function extractErrorMessage(error: AxiosError<{ description?: string; ti
 let refreshPromise: Promise<AuthSession> | null = null;
 
 /**
- * Single-flight refresh of the access token. Concurrent callers — the AuthProvider bootstrap and
- * any number of 401 response-interceptor retries — share one in-flight POST /auth/refresh rather
+ * Single-flight refresh of the access token. Concurrent callers, the AuthProvider bootstrap and
+ * any number of 401 response-interceptor retries, share one in-flight POST /auth/refresh rather
  * than each firing their own (which previously produced a burst of duplicate, often-aborted
  * refresh requests on every page load). Sets the new in-memory access token on success.
  *

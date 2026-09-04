@@ -4,7 +4,7 @@
  * Ported from Beautiful UI's `value-pill` (https://www.beautifului.dev, MIT). Its signature is a
  * `color-mix()` inset ring rather than a flat border, which reads cleaner at small sizes than a
  * 1px border does. Tones are remapped to Vesk's palette, and an `onDark` variant is added because
- * the hero card is near-black while the features grid is on white — the upstream component assumes
+ * the hero card is near-black while the features grid is on white, the upstream component assumes
  * a single themed surface.
  */
 
@@ -15,7 +15,7 @@ interface ValuePillProps {
   tone?: PillTone;
   /** Use the inverted palette for the dark hero card. */
   onDark?: boolean;
-  /** Render in the monospace face — for codes, languages, thresholds. */
+  /** Render in the monospace face, for codes, languages, thresholds. */
   mono?: boolean;
   className?: string;
 }

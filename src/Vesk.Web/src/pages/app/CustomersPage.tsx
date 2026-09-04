@@ -362,7 +362,7 @@ function CustomerDetailPanel({
           {/* Info grid */}
           <div className="grid grid-cols-2 gap-4">
             <InfoField label="Phone" value={customer.phone} />
-            <InfoField label="Email" value={customer.email ?? "—"} />
+            <InfoField label="Email" value={customer.email ?? ", "} />
             <InfoField label="Language" value={customer.preferredLanguage.toUpperCase()} />
             <div>
               <p className="text-[11px] text-ink-faint mb-1">Consent</p>
@@ -372,7 +372,7 @@ function CustomerDetailPanel({
               <p className="text-[11px] text-ink-faint mb-1">No-show score</p>
               <NoShowScore score={customer.noShowScore} />
             </div>
-            <InfoField label="Tags" value={customer.tags ?? "—"} />
+            <InfoField label="Tags" value={customer.tags ?? ", "} />
             <InfoField label="Created" value={new Date(customer.createdAt).toLocaleDateString()} />
             <InfoField label="Updated" value={new Date(customer.updatedAt).toLocaleDateString()} />
           </div>
@@ -796,7 +796,7 @@ function Field({
   children: React.ReactNode;
 }) {
   // Auto-wire label↔input: generate a stable id and inject it onto the single form control so the
-  // <label htmlFor> points at it (WCAG 2.1 — labels must be programmatically associated).
+  // <label htmlFor> points at it (WCAG 2.1, labels must be programmatically associated).
   const id = useId();
   const control = isValidElement(children)
     ? cloneElement(children as ReactElement<{ id?: string }>, { id })

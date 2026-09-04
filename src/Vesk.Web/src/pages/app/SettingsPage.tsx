@@ -69,7 +69,7 @@ interface TenantSettings {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Settings page — tabbed layout                                      */
+/*  Settings page, tabbed layout                                      */
 /* ------------------------------------------------------------------ */
 
 const tabs = [
@@ -568,7 +568,7 @@ function NotificationSettingsTab({ initial }: { initial: NotificationSettings | 
           <input
             value={smsSignature}
             onChange={(e) => setSmsSignature(e.target.value)}
-            placeholder="— Salon Belleza"
+            placeholder=", Salon Belleza"
             className={inputCls}
           />
           <p className="text-[11px] text-ink-faint mt-1">

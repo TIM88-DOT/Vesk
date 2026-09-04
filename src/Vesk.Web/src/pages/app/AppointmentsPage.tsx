@@ -275,7 +275,7 @@ function AppointmentRow({
         {isAtRisk && (
           <span
             className="relative flex w-2 h-2 shrink-0"
-            title="At risk — customer has not confirmed"
+            title="At risk, customer has not confirmed"
           >
             <span className="absolute inline-flex w-full h-full rounded-full bg-red-400 opacity-75 animate-ping" />
             <span className="relative inline-flex w-2 h-2 rounded-full bg-red-500" />
@@ -388,7 +388,7 @@ function AppointmentDetailPanel({
                 <span className="relative inline-flex w-2 h-2 rounded-full bg-red-500" />
               </span>
               <div>
-                <p className="text-[12px] font-semibold text-red-700">Unconfirmed — call the customer</p>
+                <p className="text-[12px] font-semibold text-red-700">Unconfirmed, call the customer</p>
                 <p className="text-[11px] text-red-600 mt-0.5">
                   Flagged {new Date(apt.atRiskAlertedAt).toLocaleString()}
                 </p>
@@ -423,7 +423,7 @@ function AppointmentDetailPanel({
 
           {/* Info grid */}
           <div className="grid grid-cols-2 gap-4">
-            <InfoField label="Service" value={apt.serviceName ?? "—"} />
+            <InfoField label="Service" value={apt.serviceName ?? ", "} />
             <InfoField label="Status" value={apt.status} />
             <InfoField label="Customer ID" value={apt.customerId} mono />
             {apt.staffUserId && <InfoField label="Staff ID" value={apt.staffUserId} mono />}
@@ -657,7 +657,7 @@ function CreateAppointmentModal({
           <datalist id="service-options">
             {activeServices.map((s) => (
               <option key={s.id} value={s.name}>
-                {s.name} — {s.durationMinutes}min{s.price ? ` · ${s.price}` : ""}
+                {s.name}, {s.durationMinutes}min{s.price ? ` · ${s.price}` : ""}
               </option>
             ))}
           </datalist>
@@ -839,7 +839,7 @@ function Field({
   children: React.ReactNode;
 }) {
   // Auto-wire label↔input: generate a stable id and inject it onto the single form control so the
-  // <label htmlFor> points at it (WCAG 2.1 — labels must be programmatically associated).
+  // <label htmlFor> points at it (WCAG 2.1, labels must be programmatically associated).
   const id = useId();
   const control = isValidElement(children)
     ? cloneElement(children as ReactElement<{ id?: string }>, { id })

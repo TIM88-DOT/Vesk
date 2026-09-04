@@ -21,7 +21,7 @@ function useCountUp(
       if (!startTs) startTs = ts;
       const elapsed = ts - startTs;
       const progress = Math.min(elapsed / duration, 1);
-      /* easeOutExpo — fast start, smooth settle */
+      /* easeOutExpo, fast start, smooth settle */
       const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       setValue(eased * target);
       if (progress < 1) raf = requestAnimationFrame(tick);
@@ -35,7 +35,7 @@ function useCountUp(
 }
 
 /**
- * Every figure here is reproducible from the repo — no projected or customer-reported outcomes.
+ * Every figure here is reproducible from the repo. Nothing is projected or customer-reported.
  * Accuracy / dangerous-misfire counts come from `evals/results.md` (40-case set, azure:gpt-4o-mini).
  * Test count is xUnit [Fact]/[Theory] methods across the three test projects.
  * Bounded contexts are the 9 modules enforced by the ArchUnitNET tests.
@@ -96,7 +96,7 @@ function AnimatedStat({ stat, started }: { stat: StatDef; started: boolean }) {
 
 export default function Stats() {
   /* `visible` latches true once (useFadeIn unobserves on first intersection) and useCountUp
-   * guards on a ref, so it doubles as the counter trigger — no mirrored state needed. */
+   * guards on a ref, so it doubles as the counter trigger, no mirrored state needed. */
   const { ref, visible } = useFadeIn();
 
   return (
@@ -123,7 +123,7 @@ export default function Stats() {
 
           <p className="text-center text-[12px] text-[#bbbbbb] mt-10 pt-8 border-t border-[rgba(0,0,0,0.05)]">
             Measured against the committed eval set and test suite, not projected
-            outcomes. Vesk is pre-launch — no customer data yet.
+            outcomes. Vesk is pre-launch, so there is no customer data yet.
           </p>
         </div>
       </div>
