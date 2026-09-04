@@ -17,7 +17,7 @@ function useHasAccessToken(): boolean {
  */
 export function useAppointmentEvents() {
   const queryClient = useQueryClient();
-  // Only open the hub once a valid token exists — avoids a failed negotiate (401) during the
+  // Only open the hub once a valid token exists, avoids a failed negotiate (401) during the
   // brief window after an optimistic render but before /auth/refresh has set the token.
   const hasToken = useHasAccessToken();
   const { on } = useSignalR("/hubs/appointments", hasToken);

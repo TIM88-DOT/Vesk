@@ -1,13 +1,13 @@
 /**
  * Agent tool-call trace for the hero demo.
  *
- * Pattern adapted from Beautiful UI (https://www.beautifului.dev, MIT) — its `thinking-state` and
+ * Pattern adapted from Beautiful UI (https://www.beautifului.dev, MIT), its `thinking-state` and
  * `tool-chips` primitives: shimmering working header, vertical connector rail, staggered row entry,
  * spinner on the active step. Ported onto Vesk's own tokens rather than installing their
  * `foundation` layer, which ships a second `@theme` block (--ink/--surface/--font-sans) that would
  * collide with ours across every section of the page.
  *
- * The tool names are the real ones registered on ReplyHandlingAgent — see its ToolNames array.
+ * The tool names are the real ones registered on ReplyHandlingAgent, see its ToolNames array.
  */
 
 type IconKind = "read" | "think" | "run";
@@ -37,7 +37,7 @@ function ToolIcon({ kind }: { kind: IconKind }) {
   };
 
   if (kind === "think") {
-    /* filled spark — the "reasoning" step */
+    /* filled spark, the "reasoning" step */
     return (
       <svg {...common} aria-hidden="true">
         <path

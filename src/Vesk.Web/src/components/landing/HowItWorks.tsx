@@ -76,7 +76,7 @@ export default function HowItWorks() {
               </h2>
             </div>
 
-            {/* Pipeline — horizontal on desktop, vertical on mobile */}
+            {/* Pipeline: horizontal on desktop, vertical on mobile */}
             <div className="hidden md:flex items-start gap-0">
               {steps.map((step, i) => (
                 <div key={step.number} className="flex items-start flex-1">

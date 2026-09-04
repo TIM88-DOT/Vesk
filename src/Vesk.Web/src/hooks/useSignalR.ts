@@ -14,9 +14,9 @@ type EventHandler = (...args: unknown[]) => void;
  * forwarding all genuine warnings and errors to the console so real hub failures still surface.
  *
  * Expected/transient cases:
- *  - "stopped during negotiation" / "Failed to start the connection" — intentional navigation or
+ *  - "stopped during negotiation" / "Failed to start the connection", intentional navigation or
  *    React Strict Mode double-mount aborts the first connection.
- *  - "Failed to complete negotiation ... 401" — the negotiate request raced the in-flight
+ *  - "Failed to complete negotiation ... 401", the negotiate request raced the in-flight
  *    /auth/refresh (token not set yet for those ~ms). withAutomaticReconnect retries with a valid
  *    token, so this is noise, not a real failure.
  */
@@ -74,7 +74,7 @@ export function useSignalR(hubUrl: string, enabled = true) {
     }
 
     connection.start().catch(() => {
-      // Silenced — React Strict Mode double-mount aborts the first connection.
+      // Silenced. React Strict Mode double-mount aborts the first connection.
       // The second mount will connect successfully.
     });
 
@@ -97,7 +97,7 @@ export function useSignalR(hubUrl: string, enabled = true) {
     }
     handlersRef.current.get(event)!.add(handler);
 
-    // Register immediately — SignalR supports .on() before connection is started
+    // Register immediately. SignalR supports .on() before connection is started
     connectionRef.current?.on(event, handler);
 
     return () => {

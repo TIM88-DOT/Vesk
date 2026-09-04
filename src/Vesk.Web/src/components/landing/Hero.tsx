@@ -6,7 +6,7 @@ import ValuePill from "./ValuePill";
 /* Case 5 from the committed eval set (evals/results.md): Confirm @ 0.95 → auto-confirm. */
 const REPLY_TEXT = "Oui je serai là";
 
-/** Tool calls rendered by AgentTrace — kept in sync with its `steps`. */
+/** Tool calls rendered by AgentTrace, kept in sync with its `steps`. */
 const TOOL_COUNT = 4;
 
 export default function Hero() {
@@ -28,7 +28,7 @@ export default function Hero() {
   }, []);
 
   /* Latches, not the raw stage. Depending on `stage` re-ran each animation on every later
-   * stage change — the reply retyped itself four times, the trace restarted after finishing,
+   * stage change, the reply retyped itself four times, the trace restarted after finishing,
    * and the confidence bar reset to 0. A boolean flips false→true exactly once, so each
    * effect fires once and is left alone. */
   const startTyping = stage >= 2;
@@ -112,7 +112,7 @@ export default function Hero() {
 
           <p className="text-[17px] text-[#555555] leading-[1.65] max-w-[440px] mb-10">
             Smart reminders in your client&rsquo;s language. Instant reply
-            understanding. Automatic review recovery &mdash; zero manual work.
+            understanding. Automatic review recovery. Zero manual work.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 mb-5">
@@ -162,7 +162,7 @@ export default function Hero() {
 
             {/* Pipeline stages */}
             <div className="px-5 py-5 space-y-2.5">
-              {/* Stage 1 — Outbound */}
+              {/* Stage 1: Outbound */}
               <div
                 className="transition-all duration-700 ease-out"
                 style={{
@@ -194,7 +194,7 @@ export default function Hero() {
                 <div className="w-px h-4 bg-gradient-to-b from-white/10 to-[rgba(24,226,153,0.25)]" />
               </div>
 
-              {/* Stage 2 — Inbound + Classification */}
+              {/* Stage 2: Inbound + Classification */}
               <div
                 className="transition-all duration-700 ease-out"
                 style={{
@@ -249,7 +249,7 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Agent tool trace — pattern adapted from Beautiful UI (MIT) */}
+              {/* Agent tool trace: pattern adapted from Beautiful UI (MIT) */}
               <div
                 className="transition-all duration-700 ease-out"
                 style={{
@@ -268,7 +268,7 @@ export default function Hero() {
                 <div className="w-px h-4 bg-gradient-to-b from-[rgba(24,226,153,0.25)] to-[rgba(24,226,153,0.1)]" />
               </div>
 
-              {/* Stage 4 — Action taken */}
+              {/* Stage 4: Action taken */}
               <div
                 className="transition-all duration-700 ease-out"
                 style={{

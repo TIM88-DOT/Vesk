@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 /**
  * Skeleton of the app shell shown while auth is bootstrapping. Only appears on a genuine cold
- * load (no cached user) — returning users render the real app immediately because AuthProvider
+ * load (no cached user), returning users render the real app immediately because AuthProvider
  * seeds the user from sessionStorage. A shell silhouette reads as "loading" far better than a
  * blank full-screen spinner.
  */

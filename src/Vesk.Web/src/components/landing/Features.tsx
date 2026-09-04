@@ -11,7 +11,7 @@ import ValuePill from "./ValuePill";
 
 /**
  * Demo visuals in each card use Beautiful UI's vocabulary (https://www.beautifului.dev, MIT):
- * the `value-pill` inset-ring chip and the `task-rows` decision trace — staggered `fade-up` at
+ * the `value-pill` inset-ring chip and the `task-rows` decision trace, staggered `fade-up` at
  * i*80ms on cubic-bezier(0.23,1,0.32,1). Ported onto Vesk's tokens; see ValuePill.tsx for why the
  * upstream `foundation` layer isn't installed.
  */
@@ -68,7 +68,7 @@ export default function Features() {
         <div className="space-y-4">
           {/* Row 1 */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            {/* Smart Reminders — large */}
+            {/* Smart Reminders: large */}
             <div className={`lg:col-span-7 ${CARD} flex flex-col`}>
               <div className="flex-1">
                 <div className={ICON_WRAP}>
@@ -121,7 +121,7 @@ export default function Features() {
               </div>
             </div>
 
-            {/* Right column — two stacked cards */}
+            {/* Right column: two stacked cards */}
             <div className="lg:col-span-5 flex flex-col gap-4">
               {/* Instant Replies */}
               <div className={`flex-1 ${CARD}`}>
@@ -139,7 +139,7 @@ export default function Features() {
                 </h3>
                 <p className="text-[13px] text-[#777777] leading-[1.6] mb-5">
                   Understands &ldquo;oui&rdquo; or &ldquo;yes&rdquo; and
-                  auto-confirms — or escalates when confidence is low.
+                  auto-confirms, or escalates when confidence is low.
                 </p>
 
                 <div className="p-3 bg-[#fafafa] rounded-lg border border-[rgba(0,0,0,0.04)]">
@@ -202,7 +202,7 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Row 2 — three equal cards */}
+          {/* Row 2: three equal cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Bilingual */}
             <div className={CARD}>
@@ -248,8 +248,7 @@ export default function Features() {
                 Live Dashboard
               </h3>
               <p className="text-[13px] text-[#777777] leading-[1.6] mb-5">
-                Delivery rates, no-show trends, and agent logs — all at a
-                glance.
+                See delivery rates, no-show trends and agent logs at a glance.
               </p>
               <div className="flex items-end gap-3">
                 <div className="flex items-end gap-[3px] h-7 flex-1">

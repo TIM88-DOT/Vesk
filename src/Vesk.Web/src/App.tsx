@@ -8,7 +8,7 @@ import ProtectedRoute from "./components/app/ProtectedRoute";
 import AppLayout from "./components/app/AppLayout";
 
 /* Eagerly bundled: it is the "/" route every first-time visitor lands on, so code-splitting it
- * only bought a second round trip before anything painted — and left crawlers that don't wait for
+ * only bought a second round trip before anything painted, and left crawlers that don't wait for
  * lazy chunks with an empty <div id="root">. Every other route stays lazy. */
 import LandingPage from "./pages/LandingPage";
 

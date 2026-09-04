@@ -30,7 +30,7 @@ const runs: RunResult[] = [
   },
 ];
 
-/* Real rows from the ablation run — cases the guardrail rescued. */
+/* Real rows from the ablation run, cases the guardrail rescued. */
 const rescued = [
   { msg: "Parfait merci", lang: "fr", got: "Confirm", conf: "0.85" },
   { msg: "D'accord", lang: "fr", got: "Confirm", conf: "0.90" },
@@ -150,8 +150,8 @@ export default function Evals() {
           </div>
 
           <p className="text-[12px] text-[#bbbbbb] mt-5">
-            Reproducible via <code className="font-mono">npm run eval</code> —
-            full per-case results are committed in{" "}
+            Reproducible via <code className="font-mono">npm run eval</code>.
+            Full per-case results are committed in{" "}
             <code className="font-mono">evals/results.md</code>.
           </p>
         </div>

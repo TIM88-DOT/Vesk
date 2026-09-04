@@ -11,7 +11,7 @@ import { useFadeIn } from "../../hooks/useFadeIn";
 import ValuePill from "./ValuePill";
 
 /**
- * Every entry here is implemented in the repo — Twilio behind ISmsProvider, IngestFromWebhook and
+ * Every entry here is implemented in the repo. Twilio behind ISmsProvider, IngestFromWebhook and
  * IngestFromCsv on IAppointmentSyncService, IPublicBookingService for the /book/:slug pages, the
  * review platform links used by ReviewRecoveryAgent, and AzureOpenAIClient for classification.
  * Nothing aspirational is listed without a Planned pill.
@@ -84,7 +84,7 @@ export default function Integrations() {
           </h2>
           <p className="text-[16px] text-[#777777] leading-[1.65] max-w-xl mx-auto">
             Vesk sits between your booking system and your customers. Keep
-            taking bookings the way you do now — appointments flow in, messages
+            taking bookings the way you do now. Appointments flow in, messages
             flow out, and the history stays in one place.
           </p>
         </div>

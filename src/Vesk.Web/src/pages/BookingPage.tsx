@@ -179,7 +179,7 @@ export default function BookingPage() {
     queryKey: ["public-booking", slug],
     queryFn: () => publicApi.get(`/book/${slug}`).then((r) => r.data),
     enabled: !!slug,
-    staleTime: 0, // Always fetch fresh — settings may change between visits
+    staleTime: 0, // Always fetch fresh, settings may change between visits
     refetchOnWindowFocus: true,
   });
 
@@ -225,7 +225,7 @@ export default function BookingPage() {
       setStep("success");
     },
     onError: (error: { response?: { status?: number } }) => {
-      // Slot was taken by someone else — bounce back to pick a new time
+      // Slot was taken by someone else, bounce back to pick a new time
       if (error.response?.status === 409) {
         setSelectedSlot(null);
         setStep(2);
@@ -310,7 +310,7 @@ export default function BookingPage() {
         </div>
       </div>
 
-      {/* Reschedule banner — shown when the customer arrived via an SMS reschedule link */}
+      {/* Reschedule banner: shown when the customer arrived via an SMS reschedule link */}
       {isRescheduling && step !== "success" && (
         <div className="max-w-lg mx-auto px-6 pt-5">
           <div className="rounded-2xl border border-teal/30 bg-teal-wash p-4 flex items-start gap-3">
@@ -318,7 +318,7 @@ export default function BookingPage() {
             <div>
               <p className="text-[14px] font-semibold text-ink">Rescheduling your appointment</p>
               <p className="text-[12px] text-ink-muted mt-0.5">
-                Pick a new service and time. Your original booking will be updated — no new appointment is created.
+                Pick a new service and time. Your original booking will be updated, no new appointment is created.
               </p>
             </div>
           </div>
@@ -411,7 +411,7 @@ export default function BookingPage() {
             </button>
             <h2 className="text-[18px] font-bold text-ink mb-1">Pick a date & time</h2>
             <p className="text-[13px] text-ink-muted mb-3">
-              {selectedService?.name} — {selectedService?.durationMinutes} min
+              {selectedService?.name}, {selectedService?.durationMinutes} min
             </p>
 
             {!hasBookableHours ? (
@@ -478,7 +478,7 @@ export default function BookingPage() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-[13px] font-medium text-ink">Available times</label>
-                    <span className="text-[12px] text-ink-faint">{dayInfo.open} — {dayInfo.close}</span>
+                    <span className="text-[12px] text-ink-faint">{dayInfo.open}, {dayInfo.close}</span>
                   </div>
                   {loadingSlots ? (
                     <div className="flex items-center justify-center py-8">
@@ -621,7 +621,7 @@ export default function BookingPage() {
             <div className="rounded-2xl border border-border bg-warm-white p-5 space-y-4 mb-6">
               <SummaryRow label="Service" value={selectedService?.name ?? ""} />
               <SummaryRow label="Date" value={selectedDate ? formatDate(selectedDate) : ""} />
-              <SummaryRow label="Time" value={selectedSlot ? `${formatTime(selectedSlot.startTime)} — ${formatTime(selectedSlot.endTime)}` : ""} />
+              <SummaryRow label="Time" value={selectedSlot ? `${formatTime(selectedSlot.startTime)}, ${formatTime(selectedSlot.endTime)}` : ""} />
               <SummaryRow label="Duration" value={`${selectedService?.durationMinutes} min`} />
               {selectedService?.price !== null && selectedService?.price !== undefined && (
                 <SummaryRow label="Price" value={formatPrice(selectedService.price, selectedService.currency || business.currency)} />
@@ -684,7 +684,7 @@ export default function BookingPage() {
               <SummaryRow label="Date" value={formatDate(confirmation.startsAt)} />
               <SummaryRow
                 label="Time"
-                value={`${new Date(confirmation.startsAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} — ${new Date(confirmation.endsAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`}
+                value={`${new Date(confirmation.startsAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}, ${new Date(confirmation.endsAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`}
               />
               <SummaryRow label="Business" value={confirmation.businessName} />
               {confirmation.businessPhone && <SummaryRow label="Contact" value={confirmation.businessPhone} />}
