@@ -64,13 +64,6 @@ export default function Hero() {
       <div className="relative z-10 max-w-[1200px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-16 items-center">
         {/* ── Left: copy ── */}
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[rgba(24,226,153,0.2)] bg-[rgba(24,226,153,0.06)] mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-            <span className="font-mono text-[11px] font-medium text-[#0fa76e] tracking-[0.8px] uppercase">
-              AI-native communication
-            </span>
-          </div>
-
           <h1
             className="text-[clamp(2.6rem,5.5vw,4.4rem)] font-semibold text-[#0d0d0d] leading-[1.06] mb-6"
             style={{ letterSpacing: "-1.8px" }}
