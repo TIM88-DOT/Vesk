@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useFadeIn } from "../../hooks/useFadeIn";
+import { contactMailto } from "../../lib/contact";
 
 export default function CTA() {
   const { ref, visible } = useFadeIn();
@@ -45,7 +46,7 @@ export default function CTA() {
                 <ArrowRight className="w-4 h-4 opacity-40 group-hover:translate-x-0.5 transition-transform" />
               </a>
               <a
-                href="#contact"
+                href={contactMailto("Vesk demo request")}
                 className="inline-flex items-center px-8 py-3.5 text-[15px] text-white/70 hover:text-white font-medium rounded-xl border border-white/10 hover:border-white/20 transition-all"
               >
                 Request Demo

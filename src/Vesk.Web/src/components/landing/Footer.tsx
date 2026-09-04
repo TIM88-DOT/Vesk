@@ -1,8 +1,28 @@
-const links = {
-  Product: ["Features", "Pricing", "Changelog"],
-  Company: ["About", "Blog", "Contact"],
-  Legal: ["Privacy", "Terms", "GDPR"],
-} as const;
+import { CONTACT_EMAIL, contactMailto } from "../../lib/contact";
+
+interface FooterLink {
+  label: string;
+  href: string;
+}
+
+/* Anchors point at sections that exist. Privacy and Terms have no destination yet and are the
+   only placeholders left here. */
+const links: Record<string, FooterLink[]> = {
+  Product: [
+    { label: "Features", href: "#features" },
+    { label: "Integrations", href: "#integrations" },
+    { label: "Pricing", href: "#pricing" },
+  ],
+  Company: [
+    { label: "Responsible AI", href: "#responsible-ai" },
+    { label: "Contact", href: contactMailto("Vesk enquiry") },
+  ],
+  Legal: [
+    { label: "Privacy", href: "#" },
+    { label: "Terms", href: "#" },
+    { label: "GDPR", href: "#responsible-ai" },
+  ],
+};
 
 export default function Footer() {
   return (
@@ -27,9 +47,15 @@ export default function Footer() {
                 Vesk
               </span>
             </div>
-            <p className="text-[14px] text-[#aaaaaa] leading-[1.6] max-w-[260px]">
+            <p className="text-[14px] text-[#aaaaaa] leading-[1.6] max-w-[260px] mb-4">
               AI-native communication for appointment-based businesses.
             </p>
+            <a
+              href={contactMailto("Vesk enquiry")}
+              className="text-[14px] font-medium text-[#0d0d0d] hover:text-[#0fa76e] transition-colors"
+            >
+              {CONTACT_EMAIL}
+            </a>
           </div>
 
           {/* Link columns */}
@@ -41,12 +67,12 @@ export default function Footer() {
                 </p>
                 <ul className="space-y-2.5">
                   {items.map((item) => (
-                    <li key={item}>
+                    <li key={item.label}>
                       <a
-                        href="#"
+                        href={item.href}
                         className="text-[14px] text-[#777777] hover:text-[#0d0d0d] transition-colors"
                       >
-                        {item}
+                        {item.label}
                       </a>
                     </li>
                   ))}
