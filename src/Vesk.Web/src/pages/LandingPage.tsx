@@ -1,6 +1,6 @@
 import Navbar from "../components/landing/Navbar";
 import Hero from "../components/landing/Hero";
-import SocialProof from "../components/landing/SocialProof";
+import Audience from "../components/landing/Audience";
 import Features from "../components/landing/Features";
 import HowItWorks from "../components/landing/HowItWorks";
 import Stats from "../components/landing/Stats";
@@ -14,7 +14,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <Hero />
-      <SocialProof />
+      <Audience />
       <Features />
       <HowItWorks />
       <Stats />
