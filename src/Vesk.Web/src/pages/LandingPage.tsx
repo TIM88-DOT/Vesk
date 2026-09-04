@@ -1,5 +1,6 @@
 import Navbar from "../components/landing/Navbar";
 import Hero from "../components/landing/Hero";
+import RepliesMarquee from "../components/landing/RepliesMarquee";
 import Audience from "../components/landing/Audience";
 import Features from "../components/landing/Features";
 import HowItWorks from "../components/landing/HowItWorks";
@@ -14,6 +15,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       <Navbar />
       <Hero />
+      <RepliesMarquee />
       <Audience />
       <Features />
       <HowItWorks />
