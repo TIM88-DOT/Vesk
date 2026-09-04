@@ -7,4 +7,4 @@ Disallow: /app/
 Disallow: /login
 Disallow: /register
 
-Sitemap: https://vesk-tim88dots-projects.vercel.app/sitemap.xml
+Sitemap: https://www.getvesk.app/sitemap.xml
