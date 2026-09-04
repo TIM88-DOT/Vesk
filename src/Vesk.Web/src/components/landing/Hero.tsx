@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import AgentTrace from "./AgentTrace";
+import ValuePill from "./ValuePill";
 
 /* Case 5 from the committed eval set (evals/results.md): Confirm @ 0.95 → auto-confirm. */
 const REPLY_TEXT = "Oui je serai là";
@@ -227,13 +228,15 @@ export default function Hero() {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px]">🧠</span>
-                        <span className="font-mono text-[10px] font-medium text-brand tracking-[0.8px] uppercase">
-                          Confirm
+                        <span className="font-mono text-[10px] font-medium text-white/25 tracking-[0.8px] uppercase">
+                          Intent
                         </span>
+                        <ValuePill tone="brand" onDark mono>
+                          Confirm
+                        </ValuePill>
                       </div>
                       <span className="font-mono text-[12px] font-semibold text-brand tabular-nums">
-                        {confidence}%
+                        0.{String(confidence).padStart(2, "0")}
                       </span>
                     </div>
                     <div className="h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
@@ -274,11 +277,13 @@ export default function Hero() {
                 }}
               >
                 <div className="bg-[rgba(24,226,153,0.08)] border border-[rgba(24,226,153,0.15)] rounded-xl px-4 py-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-brand text-[12px]">✓</span>
-                    <span className="font-mono text-[10px] font-medium text-brand tracking-[0.8px] uppercase">
-                      Action taken
-                    </span>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <ValuePill tone="brand" onDark mono>
+                      ✓ Action taken
+                    </ValuePill>
+                    <ValuePill tone="muted" onDark mono>
+                      confirm_appointment
+                    </ValuePill>
                   </div>
                   <p className="text-[13px] text-white/50 leading-[1.5]">
                     Appointment confirmed · Reply: &ldquo;Parfait, à demain
@@ -289,11 +294,16 @@ export default function Hero() {
             </div>
 
             {/* Status bar */}
-            <div className="px-5 py-3 border-t border-white/[0.06] flex items-center justify-between">
-              <span className="font-mono text-[10px] text-white/20 tracking-[0.8px] uppercase">
-                FR · EN
-              </span>
-              <span className="font-mono text-[10px] text-white/20 tracking-[0.8px] uppercase">
+            <div className="px-5 py-3 border-t border-white/[0.06] flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5">
+                <ValuePill tone="muted" onDark mono>
+                  FR
+                </ValuePill>
+                <ValuePill tone="muted" onDark mono>
+                  EN
+                </ValuePill>
+              </div>
+              <span className="font-mono text-[10px] text-white/20 tracking-[0.8px] uppercase truncate">
                 Auto-act ≥ 0.85 · Escalate &lt; 0.75
               </span>
             </div>
