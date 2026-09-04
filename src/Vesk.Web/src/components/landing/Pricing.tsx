@@ -174,23 +174,28 @@ export default function Pricing() {
             Simple, transparent pricing.
           </h2>
           <p className="text-[15px] text-[#aaaaaa]">
-            Per business, billed monthly. Cancel any time.
+            Get in touch and we&rsquo;ll set you up directly.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
-          {plans.map((plan) => (
-            <PlanCard key={plan.name} {...plan} />
-          ))}
+        {/* Tiers are modelled in the product but deliberately not published yet. The cards stay
+            rendered-then-blurred so the section keeps its shape; `aria-hidden` plus inert styling
+            keeps the unreadable prices out of the accessibility tree and tab order. */}
+        <div className="relative">
+          <div
+            aria-hidden="true"
+            className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start blur-[6px] select-none pointer-events-none"
+          >
+            {plans.map((plan) => (
+              <PlanCard key={plan.name} {...plan} />
+            ))}
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="px-6 py-3 bg-[#0d0d0d] text-white text-[14px] font-medium rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
+              Coming soon
+            </span>
+          </div>
         </div>
-
-        {/* Plans are modelled in the product, but payment is deliberately last on the roadmap —
-            say so rather than blurring the tiers out. */}
-        <p className="text-center text-[12px] text-[#bbbbbb] mt-8">
-          Vesk is pre-launch. These tiers are what the product is built around —
-          billing isn&rsquo;t switched on yet, so get in touch and we&rsquo;ll
-          set you up directly.
-        </p>
       </div>
     </section>
   );
