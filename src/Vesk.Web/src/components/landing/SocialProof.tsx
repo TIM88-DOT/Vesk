@@ -1,20 +1,30 @@
-const businesses = [
-  "Belleza Salon",
-  "Riverside Clinic",
-  "Spa Jasmin",
-  "North Barber Co.",
-  "Centre Dentaire",
-  "Studio Beauté",
+/**
+ * Tech-stack strip. Replaces the previous "trusted by" customer marquee — Vesk is pre-launch,
+ * so there are no customers to name. What IS verifiable is what it's built on.
+ */
+const stack = [
+  ".NET 8",
+  "ASP.NET Core",
+  "Azure OpenAI",
+  "Azure Service Bus",
+  "PostgreSQL",
+  "EF Core",
+  "MediatR",
+  "Twilio",
+  "SignalR",
+  "React 19",
+  "TypeScript",
+  "Tailwind CSS",
 ];
 
 export default function SocialProof() {
   /* Duplicate for seamless infinite scroll */
-  const items = [...businesses, ...businesses];
+  const items = [...stack, ...stack];
 
   return (
     <section className="py-14 border-y border-[rgba(0,0,0,0.05)] bg-[#fafafa] overflow-hidden">
       <p className="font-mono text-[10px] font-medium text-[#aaaaaa] tracking-[1px] uppercase text-center mb-8">
-        Trusted by appointment-based businesses
+        Built with
       </p>
 
       <div className="relative">
@@ -25,11 +35,11 @@ export default function SocialProof() {
         {/* Marquee track */}
         <div
           className="flex items-center gap-10 w-max"
-          style={{ animation: "marquee 30s linear infinite" }}
+          style={{ animation: "marquee 40s linear infinite" }}
         >
           {items.map((name, i) => (
             <span key={`${name}-${i}`} className="flex items-center gap-10">
-              <span className="text-[16px] font-semibold text-[#bbb] whitespace-nowrap select-none tracking-[-0.2px]">
+              <span className="text-[15px] font-medium text-[#999999] whitespace-nowrap select-none tracking-[-0.1px]">
                 {name}
               </span>
               <span className="w-1 h-1 rounded-full bg-[rgba(0,0,0,0.08)] shrink-0" />

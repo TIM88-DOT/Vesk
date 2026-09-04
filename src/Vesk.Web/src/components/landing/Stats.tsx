@@ -23,7 +23,7 @@ function useCountUp(
       const progress = Math.min(elapsed / duration, 1);
       /* easeOutExpo — fast start, smooth settle */
       const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setValue(Math.round(eased * target));
+      setValue(eased * target);
       if (progress < 1) raf = requestAnimationFrame(tick);
     };
 
@@ -34,57 +34,48 @@ function useCountUp(
   return value;
 }
 
-/* ── Stat data ── */
+/**
+ * Every figure here is reproducible from the repo — no projected or customer-reported outcomes.
+ * Accuracy / dangerous-misfire counts come from `evals/results.md` (40-case set, azure:gpt-4o-mini).
+ * Test count is xUnit [Fact]/[Theory] methods across the three test projects.
+ * Bounded contexts are the 9 modules enforced by the ArchUnitNET tests.
+ */
 interface StatDef {
-  /** Numeric part to animate */
   target: number;
-  /** Text before the number */
-  prefix: string;
-  /** Text after the number */
-  suffix: string;
+  decimals?: number;
+  suffix?: string;
   label: string;
   sub: string;
 }
 
 const stats: StatDef[] = [
   {
-    target: 98,
-    prefix: "",
+    target: 97.5,
+    decimals: 1,
     suffix: "%",
-    label: "Delivery rate",
-    sub: "SMS delivered successfully",
+    label: "Intent accuracy",
+    sub: "39/40 on the bilingual eval set",
   },
   {
-    target: 2,
-    prefix: "<",
-    suffix: "s",
-    label: "AI response",
-    sub: "From reply to action",
+    target: 0,
+    label: "Dangerous misfires",
+    sub: "Wrong and confident enough to act",
   },
   {
-    target: 40,
-    prefix: "",
-    suffix: "%",
-    label: "Fewer no-shows",
-    sub: "Average reduction",
+    target: 210,
+    label: "Automated tests",
+    sub: "Unit, integration, architecture",
   },
   {
-    target: 3,
-    prefix: "",
-    suffix: "×",
-    label: "More reviews",
-    sub: "In the first 60 days",
+    target: 9,
+    label: "Bounded contexts",
+    sub: "Isolation enforced in CI",
   },
 ];
 
-function AnimatedStat({
-  stat,
-  started,
-}: {
-  stat: StatDef;
-  started: boolean;
-}) {
+function AnimatedStat({ stat, started }: { stat: StatDef; started: boolean }) {
   const value = useCountUp(stat.target, 2200, started);
+  const decimals = stat.decimals ?? 0;
 
   return (
     <div className="text-center py-4">
@@ -92,8 +83,7 @@ function AnimatedStat({
         className="text-[clamp(2.4rem,5vw,3.6rem)] font-semibold text-[#0d0d0d] leading-none mb-3 tabular-nums"
         style={{ letterSpacing: "-1.5px" }}
       >
-        {stat.prefix}
-        {value}
+        {value.toFixed(decimals)}
         {stat.suffix}
       </p>
       <p className="text-[14px] text-[#0d0d0d] font-medium mb-1">
@@ -136,6 +126,11 @@ export default function Stats() {
               </div>
             ))}
           </div>
+
+          <p className="text-center text-[12px] text-[#bbbbbb] mt-10 pt-8 border-t border-[rgba(0,0,0,0.05)]">
+            Measured against the committed eval set and test suite, not projected
+            outcomes. Vesk is pre-launch — no customer data yet.
+          </p>
         </div>
       </div>
     </section>

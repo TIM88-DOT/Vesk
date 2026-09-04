@@ -1,7 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const REPLY_TEXT = "Oui merci!";
+/* Case 5 from the committed eval set (evals/results.md): Confirm @ 0.95 → auto-confirm. */
+const REPLY_TEXT = "Oui je serai là";
 
 export default function Hero() {
   const [stage, setStage] = useState(0);
@@ -37,8 +38,8 @@ export default function Hero() {
     let val = 0;
     const id = setInterval(() => {
       val += 2;
-      if (val >= 94) {
-        val = 94;
+      if (val >= 95) {
+        val = 95;
         clearInterval(id);
       }
       setConfidence(val);
@@ -127,7 +128,7 @@ export default function Hero() {
               <div className="flex items-center gap-1.5">
                 <span className="w-[5px] h-[5px] rounded-full bg-brand animate-pulse" />
                 <span className="font-mono text-[10px] font-medium text-brand/80 tracking-[0.8px] uppercase">
-                  Live
+                  Demo
                 </span>
               </div>
             </div>
@@ -255,8 +256,8 @@ export default function Hero() {
               <span className="font-mono text-[10px] text-white/20 tracking-[0.8px] uppercase">
                 FR · EN
               </span>
-              <span className="text-[12px] text-brand/60 font-medium">
-                3 handled · 0 escalated
+              <span className="font-mono text-[10px] text-white/20 tracking-[0.8px] uppercase">
+                Auto-act ≥ 0.85 · Escalate &lt; 0.75
               </span>
             </div>
           </div>
@@ -297,9 +298,11 @@ export default function Hero() {
             </div>
             <div>
               <p className="text-[12px] font-semibold text-[#0d0d0d] leading-none">
-                No-shows ↓ 40%
+                97.5% intent accuracy
               </p>
-              <p className="text-[10px] text-[#aaaaaa] mt-0.5">This month</p>
+              <p className="text-[10px] text-[#aaaaaa] mt-0.5">
+                40-case eval set
+              </p>
             </div>
           </div>
         </div>

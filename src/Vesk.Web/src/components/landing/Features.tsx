@@ -111,12 +111,12 @@ export default function Features() {
                 <div className="p-3 bg-[#fafafa] rounded-lg border border-[rgba(0,0,0,0.04)]">
                   <div className="flex items-center justify-between text-[10px] font-mono mb-2">
                     <span className="text-[#bbbbbb]">
-                      &ldquo;oui merci!&rdquo; → CONFIRM
+                      &ldquo;C&rsquo;est bon pour moi&rdquo; → CONFIRM
                     </span>
-                    <span className="text-[#0fa76e] font-semibold">94%</span>
+                    <span className="text-[#0fa76e] font-semibold">85%</span>
                   </div>
                   <div className="h-[3px] bg-[rgba(0,0,0,0.04)] rounded-full overflow-hidden">
-                    <div className="h-full w-[94%] bg-brand rounded-full" />
+                    <div className="h-full w-[85%] bg-brand rounded-full" />
                   </div>
                 </div>
               </div>
@@ -150,7 +150,7 @@ export default function Features() {
                     />
                   ))}
                   <span className="text-[11px] text-[#bbbbbb] ml-2 font-mono">
-                    3× more reviews
+                    Google · Facebook
                   </span>
                 </div>
               </div>
