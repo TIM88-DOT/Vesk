@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFadeIn } from "../../hooks/useFadeIn";
 
 /* ── Animated counter hook ── */
@@ -95,15 +95,9 @@ function AnimatedStat({ stat, started }: { stat: StatDef; started: boolean }) {
 }
 
 export default function Stats() {
+  /* `visible` latches true once (useFadeIn unobserves on first intersection) and useCountUp
+   * guards on a ref, so it doubles as the counter trigger — no mirrored state needed. */
   const { ref, visible } = useFadeIn();
-
-  /* Only start counters once visible */
-  const [started, setStarted] = useState(false);
-  const didStart = useCallback(() => {
-    if (visible && !started) setStarted(true);
-  }, [visible, started]);
-
-  useEffect(didStart, [didStart]);
 
   return (
     <section
@@ -122,7 +116,7 @@ export default function Stats() {
                     : ""
                 }
               >
-                <AnimatedStat stat={stat} started={started} />
+                <AnimatedStat stat={stat} started={visible} />
               </div>
             ))}
           </div>
