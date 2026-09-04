@@ -1,24 +1,42 @@
 import { ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import AgentTrace from "./AgentTrace";
 
 /* Case 5 from the committed eval set (evals/results.md): Confirm @ 0.95 → auto-confirm. */
 const REPLY_TEXT = "Oui je serai là";
+
+/** Tool calls rendered by AgentTrace — kept in sync with its `steps`. */
+const TOOL_COUNT = 4;
 
 export default function Hero() {
   const [stage, setStage] = useState(0);
   const [typedReply, setTypedReply] = useState("");
   const [confidence, setConfidence] = useState(0);
+  const [toolProgress, setToolProgress] = useState(0);
 
-  /* Sequence: outbound → inbound → classify → action */
+  /* Sequence: outbound → inbound → agent tools → classify → action */
   useEffect(() => {
     const timers = [
       setTimeout(() => setStage(1), 700),
       setTimeout(() => setStage(2), 2100),
-      setTimeout(() => setStage(3), 3500),
-      setTimeout(() => setStage(4), 4600),
+      setTimeout(() => setStage(3), 3400),
+      setTimeout(() => setStage(4), 5300),
+      setTimeout(() => setStage(5), 6400),
     ];
     return () => timers.forEach(clearTimeout);
   }, []);
+
+  /* Walk the tool trace once stage 3 opens */
+  useEffect(() => {
+    if (stage < 3) return;
+    let n = 0;
+    const id = setInterval(() => {
+      n++;
+      setToolProgress(n);
+      if (n >= TOOL_COUNT) clearInterval(id);
+    }, 450);
+    return () => clearInterval(id);
+  }, [stage]);
 
   /* Typing effect for the inbound reply */
   useEffect(() => {
@@ -34,7 +52,7 @@ export default function Hero() {
 
   /* Confidence counter */
   useEffect(() => {
-    if (stage < 3) return;
+    if (stage < 4) return;
     let val = 0;
     const id = setInterval(() => {
       val += 2;
@@ -197,7 +215,7 @@ export default function Hero() {
                   {/* Classification badge */}
                   <div
                     className="mt-3 pt-3 border-t border-white/[0.04] transition-all duration-700"
-                    style={{ opacity: stage >= 3 ? 1 : 0 }}
+                    style={{ opacity: stage >= 4 ? 1 : 0 }}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -220,20 +238,31 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Connector 2→3 */}
+              {/* Agent tool trace — pattern adapted from Beautiful UI (MIT) */}
+              <div
+                className="transition-all duration-700 ease-out"
+                style={{
+                  opacity: stage >= 3 ? 1 : 0,
+                  transform: stage >= 3 ? "translateY(0)" : "translateY(8px)",
+                }}
+              >
+                <AgentTrace progress={toolProgress} />
+              </div>
+
+              {/* Connector 3→4 */}
               <div
                 className="flex justify-center transition-opacity duration-500"
-                style={{ opacity: stage >= 4 ? 1 : 0 }}
+                style={{ opacity: stage >= 5 ? 1 : 0 }}
               >
                 <div className="w-px h-4 bg-gradient-to-b from-[rgba(24,226,153,0.25)] to-[rgba(24,226,153,0.1)]" />
               </div>
 
-              {/* Stage 3 — Action taken */}
+              {/* Stage 4 — Action taken */}
               <div
                 className="transition-all duration-700 ease-out"
                 style={{
-                  opacity: stage >= 4 ? 1 : 0,
-                  transform: stage >= 4 ? "translateY(0)" : "translateY(8px)",
+                  opacity: stage >= 5 ? 1 : 0,
+                  transform: stage >= 5 ? "translateY(0)" : "translateY(8px)",
                 }}
               >
                 <div className="bg-[rgba(24,226,153,0.08)] border border-[rgba(24,226,153,0.15)] rounded-xl px-4 py-3">
@@ -266,9 +295,9 @@ export default function Hero() {
           <div
             className="absolute -top-4 -right-4 sm:-top-3 sm:-right-3 bg-white rounded-xl border border-[rgba(0,0,0,0.06)] px-3.5 py-2.5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] flex items-center gap-2.5 transition-all duration-700"
             style={{
-              opacity: stage >= 4 ? 1 : 0,
-              transform: stage >= 4 ? "translateY(0)" : "translateY(-8px)",
-              animation: stage >= 4 ? "float 5s ease-in-out infinite" : "none",
+              opacity: stage >= 5 ? 1 : 0,
+              transform: stage >= 5 ? "translateY(0)" : "translateY(-8px)",
+              animation: stage >= 5 ? "float 5s ease-in-out infinite" : "none",
             }}
           >
             <div className="w-7 h-7 rounded-lg bg-[rgba(24,226,153,0.08)] flex items-center justify-center">
@@ -287,10 +316,10 @@ export default function Hero() {
           <div
             className="absolute -bottom-4 -left-4 sm:-bottom-3 sm:-left-3 bg-white rounded-xl border border-[rgba(0,0,0,0.06)] px-3.5 py-2.5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] flex items-center gap-2.5 transition-all duration-700"
             style={{
-              opacity: stage >= 4 ? 1 : 0,
-              transform: stage >= 4 ? "translateY(0)" : "translateY(8px)",
+              opacity: stage >= 5 ? 1 : 0,
+              transform: stage >= 5 ? "translateY(0)" : "translateY(8px)",
               animation:
-                stage >= 4 ? "float 5s ease-in-out 0.6s infinite" : "none",
+                stage >= 5 ? "float 5s ease-in-out 0.6s infinite" : "none",
             }}
           >
             <div className="w-7 h-7 rounded-lg bg-[rgba(24,226,153,0.08)] flex items-center justify-center">
