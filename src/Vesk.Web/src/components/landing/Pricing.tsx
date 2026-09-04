@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { useFadeIn } from "../../hooks/useFadeIn";
+import { contactMailto } from "../../lib/contact";
 
 interface PlanProps {
   name: string;
@@ -140,7 +141,7 @@ function PlanCard({
       </ul>
 
       <a
-        href="#contact"
+        href={contactMailto(`Vesk ${name} plan enquiry`)}
         className={`block text-center py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 ${
           highlighted
             ? "bg-white text-[#0d0d0d] hover:bg-white/90"
