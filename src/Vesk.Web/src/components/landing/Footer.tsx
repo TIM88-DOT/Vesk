@@ -2,31 +2,41 @@ const links = {
   Product: ["Features", "Pricing", "Changelog"],
   Company: ["About", "Blog", "Contact"],
   Legal: ["Privacy", "Terms", "GDPR"],
-};
+} as const;
 
 export default function Footer() {
   return (
-    <footer id="contact" className="border-t border-[rgba(0,0,0,0.05)] py-12 px-6 md:px-8">
+    <footer
+      id="contact"
+      className="border-t border-[rgba(0,0,0,0.05)] py-14 px-6 md:px-8"
+    >
       <div className="max-w-[1200px] mx-auto">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-10 mb-10">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-10 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-5 h-5 rounded-full bg-brand" />
-              <span className="text-[17px] text-[#0d0d0d] font-semibold tracking-[-0.2px]">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-6 h-6 rounded-lg bg-brand flex items-center justify-center">
+                <span className="text-[9px] font-bold text-[#0d0d0d] leading-none">
+                  V
+                </span>
+              </div>
+              <span
+                className="text-[17px] text-[#0d0d0d] font-semibold"
+                style={{ letterSpacing: "-0.4px" }}
+              >
                 Vesk
               </span>
             </div>
-            <p className="text-[14px] text-[#666666] leading-[1.5] max-w-[240px]">
+            <p className="text-[14px] text-[#aaaaaa] leading-[1.6] max-w-[260px]">
               AI-native communication for appointment-based businesses.
             </p>
           </div>
 
-          {/* Links */}
-          <div className="flex gap-16">
+          {/* Link columns */}
+          <div className="flex gap-16 flex-wrap">
             {Object.entries(links).map(([title, items]) => (
               <div key={title}>
-                <p className="font-mono text-[12px] text-[#888888] tracking-[0.6px] uppercase mb-4 font-medium">
+                <p className="font-mono text-[10px] text-[#bbbbbb] tracking-[1px] uppercase mb-4 font-medium">
                   {title}
                 </p>
                 <ul className="space-y-2.5">
@@ -34,7 +44,7 @@ export default function Footer() {
                     <li key={item}>
                       <a
                         href="#"
-                        className="text-[14px] text-[#0d0d0d] hover:text-brand transition-colors"
+                        className="text-[14px] text-[#777777] hover:text-[#0d0d0d] transition-colors"
                       >
                         {item}
                       </a>
@@ -47,7 +57,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-[rgba(0,0,0,0.05)] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[13px] text-[#888888]">
+          <p className="text-[13px] text-[#bbbbbb]">
             &copy; {new Date().getFullYear()} Vesk
           </p>
           <div className="flex gap-6">
@@ -55,7 +65,7 @@ export default function Footer() {
               <a
                 key={s}
                 href="#"
-                className="text-[13px] text-[#888888] hover:text-brand transition-colors"
+                className="text-[13px] text-[#bbbbbb] hover:text-[#0d0d0d] transition-colors"
               >
                 {s}
               </a>

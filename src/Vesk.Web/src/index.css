@@ -63,13 +63,155 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Scroll reveal ─── */
 .fade-in-section {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(32px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .fade-in-section.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ─── Staggered children (pair with is-visible) ─── */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.stagger-children.is-visible > * {
+  animation: stagger-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.stagger-children.is-visible > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children.is-visible > *:nth-child(2) { animation-delay: 0.10s; }
+.stagger-children.is-visible > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children.is-visible > *:nth-child(4) { animation-delay: 0.20s; }
+.stagger-children.is-visible > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children.is-visible > *:nth-child(6) { animation-delay: 0.30s; }
+
+@keyframes stagger-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Infinite marquee ─── */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ─── Gentle float ─── */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* ─── Cursor blink ─── */
+@keyframes blink-cursor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ─── Dot grid background ─── */
+.dot-grid {
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0.04) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* ─── Pipeline connector dot (How It Works) ─── */
+.pipeline-line {
+  position: relative;
+  overflow: hidden;
+}
+.pipeline-line::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  box-shadow: 0 0 8px rgba(24, 226, 153, 0.4);
+  animation: flow-dot 2.5s ease-in-out infinite;
+}
+
+@keyframes flow-dot {
+  0% {
+    left: -6px;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% - 6px);
+    opacity: 0;
+  }
+}
+
+/* Vertical variant for mobile */
+.pipeline-line-v {
+  position: relative;
+  overflow: hidden;
+}
+.pipeline-line-v::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  box-shadow: 0 0 8px rgba(24, 226, 153, 0.4);
+  animation: flow-dot-v 2.5s ease-in-out infinite;
+}
+
+@keyframes flow-dot-v {
+  0% {
+    top: -6px;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% - 6px);
+    opacity: 0;
+  }
 }
