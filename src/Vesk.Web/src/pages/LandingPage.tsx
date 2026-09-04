@@ -4,6 +4,7 @@ import RepliesMarquee from "../components/landing/RepliesMarquee";
 import Audience from "../components/landing/Audience";
 import Features from "../components/landing/Features";
 import HowItWorks from "../components/landing/HowItWorks";
+import Integrations from "../components/landing/Integrations";
 import Stats from "../components/landing/Stats";
 import Evals from "../components/landing/Evals";
 import ResponsibleAI from "../components/landing/ResponsibleAI";
@@ -20,6 +21,7 @@ export default function LandingPage() {
       <Audience />
       <Features />
       <HowItWorks />
+      <Integrations />
       <Stats />
       <Evals />
       <ResponsibleAI />

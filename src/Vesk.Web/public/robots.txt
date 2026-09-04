@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /$
+Allow: /book/
+
+# Authenticated app and auth screens carry no crawlable content.
+Disallow: /app/
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://vesk-tim88dots-projects.vercel.app/sitemap.xml
