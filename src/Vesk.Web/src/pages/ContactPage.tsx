@@ -48,13 +48,6 @@ export default function ContactPage() {
 
         <div className="relative z-10 mx-auto max-w-[1200px]">
           <div className="max-w-2xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[rgba(0,0,0,0.06)] bg-white px-3 py-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-              <span className="font-mono text-[10px] font-medium uppercase tracking-[1px] text-[#0fa76e]">
-                Contact
-              </span>
-            </div>
-
             <h1
               className="mb-5 text-[clamp(2.2rem,5vw,3.4rem)] font-semibold leading-[1.08] text-[#0d0d0d]"
               style={{ letterSpacing: "-1.6px" }}
