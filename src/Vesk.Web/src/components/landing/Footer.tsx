@@ -1,8 +1,11 @@
-import { CONTACT_EMAIL, contactMailto } from "../../lib/contact";
+import { Link } from "react-router-dom";
 
 interface FooterLink {
   label: string;
-  href: string;
+  /** In-page anchor or external URL. */
+  href?: string;
+  /** App route, rendered as a router Link so it does not reload the page. */
+  to?: string;
 }
 
 /* Anchors point at sections that exist. Privacy and Terms have no destination yet and are the
@@ -15,7 +18,7 @@ const links: Record<string, FooterLink[]> = {
   ],
   Company: [
     { label: "Responsible AI", href: "#responsible-ai" },
-    { label: "Contact", href: contactMailto("Vesk enquiry") },
+    { label: "Contact", to: "/contact" },
   ],
   Legal: [
     { label: "Privacy", href: "#" },
@@ -50,12 +53,12 @@ export default function Footer() {
             <p className="text-[14px] text-[#aaaaaa] leading-[1.6] max-w-[260px] mb-4">
               AI-native communication for appointment-based businesses.
             </p>
-            <a
-              href={contactMailto("Vesk enquiry")}
+            <Link
+              to="/contact"
               className="text-[14px] font-medium text-[#0d0d0d] hover:text-[#0fa76e] transition-colors"
             >
-              {CONTACT_EMAIL}
-            </a>
+              Get in touch
+            </Link>
           </div>
 
           {/* Link columns */}
@@ -68,12 +71,21 @@ export default function Footer() {
                 <ul className="space-y-2.5">
                   {items.map((item) => (
                     <li key={item.label}>
-                      <a
-                        href={item.href}
-                        className="text-[14px] text-[#777777] hover:text-[#0d0d0d] transition-colors"
-                      >
-                        {item.label}
-                      </a>
+                      {item.to ? (
+                        <Link
+                          to={item.to}
+                          className="text-[14px] text-[#777777] hover:text-[#0d0d0d] transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <a
+                          href={item.href}
+                          className="text-[14px] text-[#777777] hover:text-[#0d0d0d] transition-colors"
+                        >
+                          {item.label}
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>

@@ -48,6 +48,45 @@
   --color-teal-wash: rgba(24, 226, 153, 0.08);
   --color-teal-border: rgba(24, 226, 153, 0.2);
   --color-border-strong: rgba(0, 0, 0, 0.08);
+
+  /* ─── Beautiful UI token layer (beautifului.dev, MIT) ───
+   * The registry's `foundation` style, remapped onto Vesk's palette instead of
+   * its stock cool-grey/blue one, so the vendored primitives in components/bui
+   * match the rest of the site. Purely additive: `ink`, `card` and `border`
+   * above are reused as they are, and BUI's `surface` (card white) is spelled
+   * `card` here because `surface` is already Vesk's page grey. */
+  --color-canvas: #ffffff;
+  --color-inset: #fafafa;
+  --color-hover: #f5f5f5;
+  --color-hover-2: #ededed;
+  --color-field: #f5f5f5;
+  --color-ink-2: #666666;
+  --color-ink-3: #888888;
+  --color-line: rgba(0, 0, 0, 0.05);
+  --color-line-strong: rgba(0, 0, 0, 0.08);
+  --color-accent: #18E299;
+  --color-accent-ink: #0fa76e;
+  --color-accent-tint: #d4fae8;
+  --color-green: #0fa76e;
+  --color-green-tint: #d4fae8;
+
+  /* radii — chips 6, controls 8, cards 10, windows 14, pills 999 */
+  --radius-chip: 6px;
+  --radius-control: 8px;
+  --radius-card: 10px;
+  --radius-window: 14px;
+
+  /* easing — strong curves; the built-ins are too weak */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* elevation — a solid hairline ring plus a layered shadow */
+  --shadow-hairline: 0 0 0 1px rgba(0, 0, 0, 0.05);
+  --shadow-btn: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03),
+    0 2px 6px rgba(0, 0, 0, 0.03);
+  --shadow-raised: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 10px rgba(0, 0, 0, 0.06);
+  --shadow-inset-field: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 html {

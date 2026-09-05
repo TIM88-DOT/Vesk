@@ -14,6 +14,7 @@ import LandingPage from "./pages/LandingPage";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
 const DashboardPage = lazy(() => import("./pages/app/DashboardPage"));
 const CustomersPage = lazy(() => import("./pages/app/CustomersPage"));
 const AppointmentsPage = lazy(() => import("./pages/app/AppointmentsPage"));
@@ -44,6 +45,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/book/:slug" element={<BookingPage />} />
 
               {/* Protected app */}
