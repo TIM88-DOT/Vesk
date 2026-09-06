@@ -1,8 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import AgentTrace from "./AgentTrace";
 import ValuePill from "./ValuePill";
-import { contactMailto } from "../../lib/contact";
 
 /* Case 5 from the committed eval set (evals/results.md): Confirm @ 0.95 → auto-confirm. */
 const REPLY_TEXT = "Oui je serai là";
@@ -124,12 +124,12 @@ export default function Hero() {
               Get Started
               <ArrowRight className="w-4 h-4 opacity-50 group-hover:translate-x-0.5 transition-transform" />
             </a>
-            <a
-              href={contactMailto("Vesk demo request")}
+            <Link
+              to="/contact"
               className="inline-flex items-center px-7 py-3 text-[15px] text-[#0d0d0d] font-medium rounded-xl border border-[rgba(0,0,0,0.1)] hover:border-[rgba(0,0,0,0.2)] bg-white hover:bg-[#fafafa] transition-all"
             >
               Request Demo
-            </a>
+            </Link>
           </div>
 
           <p className="text-[13px] text-[#aaaaaa]">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const navLinks = [
   "Features",
@@ -10,6 +11,12 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  /* The section anchors only resolve on "/", so off the landing route they need
+   * to carry the path with them. */
+  const sectionHref = (label: string) =>
+    `${pathname === "/" ? "" : "/"}#${label.toLowerCase().replace(/\s+/g, "-")}`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -34,26 +41,32 @@ export default function Navbar() {
       >
         <div className="max-w-[1200px] mx-auto px-6 md:px-8 h-[64px] flex items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2.5 group">
+          <Link to="/" className="flex items-center gap-2.5 group">
             <div className="w-7 h-7 rounded-lg bg-brand flex items-center justify-center shadow-[0_0_0_1px_rgba(0,0,0,0.04)]">
               <span className="text-[11px] font-bold text-[#0d0d0d] leading-none">V</span>
             </div>
             <span className="text-[17px] font-semibold text-[#0d0d0d] tracking-[-0.4px]">
               Vesk
             </span>
-          </a>
+          </Link>
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((label) => (
               <a
                 key={label}
-                href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
+                href={sectionHref(label)}
                 className="px-4 py-2 text-[14px] text-[#666666] hover:text-[#0d0d0d] rounded-lg hover:bg-black/[0.03] transition-all duration-200"
               >
                 {label}
               </a>
             ))}
+            <Link
+              to="/contact"
+              className="px-4 py-2 text-[14px] text-[#666666] hover:text-[#0d0d0d] rounded-lg hover:bg-black/[0.03] transition-all duration-200"
+            >
+              Contact
+            </Link>
           </div>
 
           {/* Desktop CTA */}
@@ -112,7 +125,7 @@ export default function Navbar() {
             {navLinks.map((label, i) => (
               <a
                 key={label}
-                href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
+                href={sectionHref(label)}
                 className="block text-[28px] font-semibold text-[#0d0d0d] py-3 transition-all duration-500"
                 style={{
                   letterSpacing: "-0.5px",
@@ -125,6 +138,19 @@ export default function Navbar() {
                 {label}
               </a>
             ))}
+            <Link
+              to="/contact"
+              className="block text-[28px] font-semibold text-[#0d0d0d] py-3 transition-all duration-500"
+              style={{
+                letterSpacing: "-0.5px",
+                opacity: mobileOpen ? 1 : 0,
+                transform: mobileOpen ? "translateY(0)" : "translateY(16px)",
+                transitionDelay: `${100 + navLinks.length * 60}ms`,
+              }}
+              onClick={() => setMobileOpen(false)}
+            >
+              Contact
+            </Link>
           </div>
 
           <div

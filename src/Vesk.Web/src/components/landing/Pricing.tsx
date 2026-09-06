@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useFadeIn } from "../../hooks/useFadeIn";
-import { contactMailto } from "../../lib/contact";
 
 interface PlanProps {
   name: string;
@@ -9,6 +9,8 @@ interface PlanProps {
   description: string;
   features: string[];
   cta: string;
+  /** Self-serve plans go straight to signup; Enterprise needs a conversation. */
+  ctaHref: string;
   highlighted?: boolean;
 }
 
@@ -25,6 +27,7 @@ const plans: PlanProps[] = [
       "Appointment management",
     ],
     cta: "Start free trial",
+    ctaHref: "/register",
   },
   {
     name: "Pro",
@@ -40,6 +43,7 @@ const plans: PlanProps[] = [
       "Bilingual templates",
     ],
     cta: "Start free trial",
+    ctaHref: "/register",
     highlighted: true,
   },
   {
@@ -54,6 +58,7 @@ const plans: PlanProps[] = [
       "Dedicated account manager",
     ],
     cta: "Contact sales",
+    ctaHref: "/contact",
   },
 ];
 
@@ -64,6 +69,7 @@ function PlanCard({
   description,
   features,
   cta,
+  ctaHref,
   highlighted,
 }: PlanProps) {
   return (
@@ -140,8 +146,8 @@ function PlanCard({
         ))}
       </ul>
 
-      <a
-        href={contactMailto(`Vesk ${name} plan enquiry`)}
+      <Link
+        to={ctaHref}
         className={`block text-center py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 ${
           highlighted
             ? "bg-white text-[#0d0d0d] hover:bg-white/90"
@@ -149,7 +155,7 @@ function PlanCard({
         }`}
       >
         {cta}
-      </a>
+      </Link>
     </div>
   );
 }
